@@ -4,7 +4,7 @@ namespace MPC.PlanSched.UI.ViewModel
 {
     /// <summary>
     /// Represents an item for a Telerik Drawer component.
-    /// This is used to customize appearance and behavior of the menu item with its text, icons,and additional properties .
+    /// This is used to customize appearance and behavior of the menu item with its text, icons, and additional properties.
     /// </summary>
     [ExcludeFromCodeCoverage]
     public class NavigationDrawerItemModel

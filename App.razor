@@ -1,24 +1,3 @@
-@using MPC.PlanSched.Service
-@using MPC.PlanSched.UI.ViewModel
-@inject IHttpContextAccessor HttpContextAccessor
-@inject CookieService cookieService
-
-@{
-    var UserThemePreference = cookieService.GetThemePreference();
-    var context = HttpContextAccessor.HttpContext;
-    if (context?.Session != null && !context.Session.Keys.Contains("UserCorrelationId"))
-    {
-        context.Session.SetString("UserCorrelationId", Guid.NewGuid().ToString());
-    }
-    if (context?.Session != null && !context.Session.Keys.Contains("LocalTimezoneNameData"))
-    {
-        context.Session.SetString("LocalTimezoneNameData", PlanNSchedConstant.DefaultTimeZone);
-    }
-    if (context?.Session != null && !context.Session.Keys.Contains("PlanTypeData"))
-    {
-        context.Session.SetString("PlanTypeData", "InitialValue");
-    }
-}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -30,33 +9,8 @@
     <link href="MPC.PlanSched.UI.styles.css" rel="stylesheet" />
     <link href="/css/Styles.css" rel="stylesheet" />
     <link href="/css/fontIcons/css/all.css" rel="stylesheet" />
-  
-    @if (UserThemePreference != null || UserThemePreference == "dark")
-    {
-        <link id="TelerikThemeLink" rel="stylesheet" href="/css/themes/marathon-dark.css" />
-    }
-    else
-    {
-        <link id="TelerikThemeLink" rel="stylesheet" href="/css/themes/marathon-light.css" />
-    }
+    <link id="TelerikThemeLink" rel="stylesheet" href="/css/themes/marathon-light.css" />
     <script src="_content/Telerik.UI.for.Blazor/js/telerik-blazor.js" defer></script>
-    <script type='module' src='https://tableau.mgroupnet.com/javascripts/api/tableau.embedding.3.latest.min.js'></script>
-    <script src="/ThemeChanger.js"></script>
-    <script src="/SetCookie.js"></script>
-    <script>
-        function saveAsFile(base64String, fileName, contentType) {
-            var link = document.createElement("a");
-            link.download = fileName;
-            link.href = "data:" + contentType + ";base64," + base64String;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-        function getLocalTimeZoneName() {
-            var timeZoneName = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            return timeZoneName;
-        }
-    </script>
     <HeadOutlet @rendermode="InteractiveServer" />
 </head>
 <body>
