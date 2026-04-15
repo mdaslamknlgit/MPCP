@@ -1,3 +1,5 @@
+using MPC.PlanSched.UI;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorComponents()
