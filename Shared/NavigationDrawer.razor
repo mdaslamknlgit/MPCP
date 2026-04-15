@@ -1,0 +1,19 @@
+<div class="navigation-drawer">
+    <TelerikDrawer Data="@DrawerData"
+                   MiniMode="false"
+                   Mode="@DrawerMode.Push"
+                   @bind-Expanded="@IsDrawerExpanded"
+                   Class="main-height"
+                   Width="250px">
+        <Template>
+            <div class="k-drawer-items" role="menubar" aria-orientation="vertical">
+                <ul>
+                    @foreach (var item in context)
+                    {
+                        <NavigationDrawerItem Item="@item" SelectedItem="@SelectedItem" SelectEventHandler="SelectedItemChangedHandlerAsync"></NavigationDrawerItem>
+                    }
+                </ul>
+            </div>
+        </Template>
+    </TelerikDrawer>
+</div>

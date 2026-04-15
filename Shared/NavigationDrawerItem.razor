@@ -1,0 +1,15 @@
+<li @onclick="@(() => SelectEventHandler(Item))" class="k-drawer-item @selectedClass k-level-@(Item.Level)">
+    <span><i class="@Item.Icon" style="font-size: 15px; text-shadow: 1px 1px 2px #00000080;"></i></span>
+    <span style="text-shadow: 1px 1px 2px #00000020;">@Item.Text</span>
+    @if (Item.Children?.Any() ?? false)
+    {
+        <TelerikSvgIcon Class="drawer-chevron-icon" Icon="@(Item.Expanded ? SvgIcon.ChevronDown : SvgIcon.ChevronRight)" />
+    }
+</li>
+@if (Item.Expanded && (Item.Children?.Any() ?? false))
+{
+    foreach (var child in Item.Children)
+    {
+        <NavigationDrawerItem SelectedItem="@SelectedItem" Item="@child" SelectEventHandler="@SelectEventHandler"></NavigationDrawerItem>
+    }
+}
