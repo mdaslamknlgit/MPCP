@@ -1,0 +1,144 @@
+@page "/cards"
+@rendermode InteractiveServer
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+
+<PageTitle>Cards</PageTitle>
+
+<h3 class="mb-3">Cards</h3>
+
+<div class="cards-grid">
+    @foreach (var c in CardsList)
+    {
+        <TelerikCard Class="cards-grid__card">
+            <CardHeader>
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        @if (!string.IsNullOrWhiteSpace(c.IconCss))
+                        {
+                            <i class="@c.IconCss"></i>
+                        }
+                        <strong>@c.Title</strong>
+                    </div>
+                    <span class="k-chip k-chip-solid k-chip-solid-base">@c.Badge</span>
+                </div>
+            </CardHeader>
+
+            <CardBody>
+                <div class="text-muted">@c.Description</div>
+                @if (c.Tags.Count > 0)
+                {
+                    <div class="mt-2 d-flex gap-2 flex-wrap">
+                        @foreach (var tag in c.Tags)
+                        {
+                            <span class="k-chip k-chip-outline k-chip-outline-base">@tag</span>
+                        }
+                    </div>
+                }
+            </CardBody>
+
+            <CardFooter>
+                <div class="d-flex gap-2 flex-wrap">
+                    <TelerikButton ThemeColor="@ThemeConstants.Button.ThemeColor.Primary"
+                                   OnClick="@(() => Open(c.Url))">
+                        Open
+                    </TelerikButton>
+
+                    <TelerikButton FillMode="@ThemeConstants.Button.FillMode.Outline"
+                                   OnClick="@(() => OpenNewTab(c.Url))">
+                        New tab
+                    </TelerikButton>
+
+                    <TelerikButton FillMode="@ThemeConstants.Button.FillMode.Flat"
+                                   OnClick="@(() => ToggleFavorite(c))">
+                        <i class="@(c.IsFavorite ? "fa-solid fa-star" : "fa-regular fa-star")"></i>
+                        @(c.IsFavorite ? "Unfavorite" : "Favorite")
+                    </TelerikButton>
+                </div>
+            </CardFooter>
+        </TelerikCard>
+    }
+</div>
+
+@code {
+    private sealed class CardItem
+    {
+        public string Title { get; init; } = "";
+        public string Description { get; init; } = "";
+        public string Url { get; init; } = "";
+        public string Badge { get; init; } = "General";
+        public string? IconCss { get; init; }
+        public List<string> Tags { get; init; } = new();
+        public bool IsFavorite { get; set; }
+    }
+
+    private List<CardItem> CardsList { get; } =
+    [
+        new()
+        {
+            Title = "Home",
+            Description = "Go to the landing page",
+            Url = "/",
+            Badge = "General",
+            IconCss = "fa-solid fa-house",
+            Tags = new() { "Start" }
+        },
+        new()
+        {
+            Title = "About",
+            Description = "Minimal Blazor Server template with Telerik UI",
+            Url = "/about",
+            Badge = "Info",
+            IconCss = "fa-solid fa-circle-info",
+            Tags = new() { "Docs" }
+        },
+        new()
+        {
+            Title = "Reports",
+            Description = "Placeholder for reports area",
+            Url = "/reports",
+            Badge = "Demo",
+            IconCss = "fa-solid fa-chart-column",
+            Tags = new() { "KPIs", "Exports" }
+        },
+        new()
+        {
+            Title = "Settings",
+            Description = "Placeholder for user settings",
+            Url = "/settings",
+            Badge = "Demo",
+            IconCss = "fa-solid fa-gear",
+            Tags = new() { "Preferences" }
+        },
+        new()
+        {
+            Title = "Help",
+            Description = "Documentation and support resources",
+            Url = "/help",
+            Badge = "Support",
+            IconCss = "fa-solid fa-life-ring",
+            Tags = new() { "Documentation" }
+        },
+        new()
+        {
+            Title = "Cards",
+            Description = "This card gallery demo page",
+            Url = "/cards",
+            Badge = "Demo",
+            IconCss = "fa-solid fa-table-cells",
+            Tags = new() { "Example" }
+        }
+    ];
+
+    private void Open(string url) => Nav.NavigateTo(url);
+
+    private async Task OpenNewTab(string url)
+    {
+        // Only allow relative (internal) URLs to prevent open-redirect misuse
+        if (!Uri.IsWellFormedUriString(url, UriKind.Relative))
+            return;
+        await JS.InvokeVoidAsync("window.open", url, "_blank");
+    }
+
+    private void ToggleFavorite(CardItem card) => card.IsFavorite = !card.IsFavorite;
+}
