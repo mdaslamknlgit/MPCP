@@ -5,6 +5,8 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddTelerikBlazor();
 
+builder.Services.AddScoped<MPC.PlanSched.UI.Services.INavigationMenuService, MPC.PlanSched.UI.Services.NavigationMenuService>();
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

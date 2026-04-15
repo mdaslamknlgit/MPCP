@@ -1,34 +1,50 @@
 @layout TelerikLayout
 @inherits LayoutComponentBase
 
-<div class="page">
-    <main>
-        <PageTitle>MPC</PageTitle>
-        <div>
-            <div class="mpc-top-header d-flex align-content-center mpc-main-banner">
-                <div class="col">
-                    <div class="px-2"><img src="/Images/M_Logo.png" height="40" /></div>
-                    <div class="font-800 font-20">MPCP</div>
-                </div>
-            </div>
-        </div>
-        <div class="main-height" style="position: relative; display: flex;">
-            <div class="col-12" style="margin: 0; flex: 1; overflow: auto;">
-                <div class="main k-body" style="margin: 0; overflow: auto;">
-                    <NavMenu />
-                    <article class="content px-4">
-                        <div class="container-fluid">
-                            @Body
+<CascadingValue Value="SelectedRole" Name="SelectedRole">
+    <div class="page">
+        <main>
+            <PageTitle>MPC</PageTitle>
+            <div>
+                <div class="mpc-top-header d-flex align-content-center mpc-main-banner">
+                    <div class="col">
+                        <div class="ps-2">
+                            <TelerikButton OnClick="@(() => NavDrawer.Toggle())" Icon="@SvgIcon.Menu" FillMode="@ThemeConstants.Button.FillMode.Flat"></TelerikButton>
                         </div>
-                    </article>
+                        <div class="px-2"><img src="/Images/M_Logo.png" height="40" /></div>
+                        <div class="font-800 font-20">MPCP</div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <footer class="d-grid order-1">
-            <div class="row align-content-center">
-                <div class="col font-14"><span>Marathon Petroleum</span></div>
+            <div class="main-height" style="position: relative; display: flex;">
+                <NavigationDrawer @ref="NavDrawer"></NavigationDrawer>
+                <div class="col-12" style="margin: 0; flex: 1; overflow: auto;">
+                    <CascadingValue Value="NavDrawer">
+                        <div class="main k-body" style="margin: 0; overflow: auto;">
+                            <NavMenu />
+                            <article class="content px-4">
+                                <div class="container-fluid">
+                                    <ErrorBoundary @ref="@ErrorBoundary" Context="Exception">
+                                        <ChildContent>
+                                            @Body
+                                        </ChildContent>
+                                        <ErrorContent>
+                                            <div class="alert alert-secondary text-danger alert-dismissible d-none" title="Application Error! Try to relogin or contact administrator">
+                                            </div>
+                                        </ErrorContent>
+                                    </ErrorBoundary>
+                                </div>
+                            </article>
+                        </div>
+                    </CascadingValue>
+                </div>
             </div>
-        </footer>
-    </main>
-</div>
+            <footer class="d-grid order-1">
+                <div class="row align-content-center">
+                    <div class="col font-14"><span>Marathon Petroleum</span></div>
+                </div>
+            </footer>
+        </main>
+    </div>
+</CascadingValue>
 
