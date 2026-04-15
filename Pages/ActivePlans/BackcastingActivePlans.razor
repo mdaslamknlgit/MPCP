@@ -1,0 +1,195 @@
+@page "/{selectedRole}/regionalbackcasting/plans/active"
+@using MPC.PlanSched.Shared.Common.Extensions
+@using MPC.PlanSched.Shared.Service.Schema
+@inherits CommonBase
+
+<Spinner IsVisible="@IsLoading()" />
+
+<div class="row">
+	<div class="col-12 m-space">
+		<div class="font-600 font-26">
+			<i class="fa-solid fa-earth-americas" /> @(Area.Description()) - List of Regions
+		</div>
+	</div>
+
+	<div class="col-12 m-space">
+		<div class="font-20">
+			Select a Region to view / update regional backcasting plans
+		</div>
+	</div>
+
+	<div class="col-12">
+		<TelerikGrid Data="@BusinessCases" FilterMode="@GridFilterMode.FilterMenu" FilterMenuType="@FilterMenuType.CheckBoxList" Class="grid-no-scroll">
+			<GridAggregates>
+				<GridAggregate Field="Region" Aggregate="@GridAggregateType.Count" />
+			</GridAggregates>
+
+			<GridColumns>
+				<GridColumn Field="Region" Title="Region">
+					<FooterTemplate>
+						Total Records: @context.Count
+					</FooterTemplate>
+				</GridColumn>
+
+				<GridColumn Field="RefineryName" Title="Refineries" />
+				<GridColumn Field="Name" Title="Plan Name">
+					<Template>
+						@{
+							var businessCase = (BusinessCase)context;
+						}
+						<div id="@("tooltip-target-plan-name" + businessCase.Id)"
+							 style="cursor: pointer; width: 100%; height: 100%; display: inline-block;">
+							@businessCase.Name
+						</div>
+						<TelerikTooltip TargetSelector="@( "#tooltip-target-plan-name" + businessCase.Id)" Position="@TooltipPosition.Bottom">
+							<Template Context="ttipContext">
+								<p><b>Plan Name: </b>@businessCase.Name</p>
+							</Template>
+						</TelerikTooltip>
+					</Template>
+				</GridColumn>
+				<GridColumn Field="Description" Title="Description" />
+
+				<GridColumn Field="" Title=@_localTimezone>
+					<Template>
+						@{
+							var businessCase = (BusinessCase)context;
+						}
+						<div class="font-700">@(businessCase.UpdatedOn)</div>
+						<div> @(businessCase.UpdatedBy)</div>
+					</Template>
+				</GridColumn>
+
+				<GridColumn Field="">
+					<Template>
+						@{
+							var businessCase = (BusinessCase)context;
+						}
+
+						@if (businessCase.Name is null)
+						{
+							<a style="cursor: not-allowed; pointer-events: none; opacity: 0.5;">View/Edit Saved Plan</a>
+						}
+						else
+						{
+							<AuthorizeView Policy="@ViewPermissionName(businessCase.Region)" Context="auth">
+								<a class="hand-pointer font-500 custom-link" data-itemRegionName="@businessCase.Name" id="@("tooltip-target" + businessCase.Id)" @onclick="(() => EditPlan(businessCase))">
+									View/Edit Saved Plan
+								</a>
+								<TelerikTooltip TargetSelector="@( "#tooltip-target" + businessCase.Id)" Position="@TooltipPosition.Bottom">
+									<Template Context="ttipContext">
+										<p></p>
+										<p><b>Plan Name: </b>@businessCase.Name</p>
+										<p><b>Description: </b>@businessCase.Description</p>
+									</Template>
+								</TelerikTooltip>
+							</AuthorizeView>
+						}
+					</Template>
+				</GridColumn>
+
+				<GridColumn Field="">
+					<Template>
+						@{
+							var businessCase = (BusinessCase)context;
+						}
+
+						<MPC.PlanSched.UI.Shared.RefreshDialog @ref="_refreshModal" />
+						@if (businessCase.Name is null)
+						{
+							<a style="cursor: not-allowed; pointer-events: none; opacity: 0.5;">Refresh Data</a>
+						}
+						else
+						{
+							<AuthorizeView Policy="@(EditPermissionName(businessCase.Region))" Context="auth">
+								<a class="hand-pointer font-500 custom-link" @onclick="@(() => { RefreshModel(businessCase); })">
+									Refresh Data
+								</a>
+							</AuthorizeView>
+						}
+					</Template>
+				</GridColumn>
+
+				<GridColumn Field="">
+					<Template>
+						@{
+							var businessCase = (BusinessCase)context;
+							bool isBusinessCaseNameNull = businessCase.Name is null;
+						}
+						<AuthorizeView Policy="@(EditPermissionName(businessCase.Region))" Context="auth">
+							@if (!isBusinessCaseNameNull)
+							{
+								<a style="cursor: not-allowed; pointer-events: none; opacity: 0.5;">Start New Plan</a>
+							}
+							else
+							{
+								<a class="hand-pointer font-500 custom-link" @onclick="@(() => { StartNewPlan(businessCase); })">
+									Start New Plan
+								</a>
+							}
+						</AuthorizeView>
+					</Template>
+
+				</GridColumn>
+
+				<GridColumn Field="">
+					<Template>
+						@{
+							var businessCase = (BusinessCase)context;
+							if (businessCase.Name is null)
+							{
+								<a style="cursor: not-allowed; pointer-events: none; opacity: 0.5;">Archive Plan</a>
+							}
+							else
+							{
+								<AuthorizeView Policy="@(EditPermissionName(businessCase.Region))" Context="auth">
+									<a class="hand-pointer font-500 custom-link"
+									   @onclick="@(() => {@BusinessCaseId = businessCase.Id;
+                                                           _archivedialog.Open(); })">
+										Archive Plan
+									</a>
+								</AuthorizeView>
+							}
+						}
+					</Template>
+				</GridColumn>
+
+				<GridColumn Field="" Width="5rem">
+					<Template>
+						@{
+							var businessCase = (BusinessCase)context;
+							bool isBusinessCaseNameNull = businessCase.Name is null;
+						}
+
+						<div style="text-align: center;">
+							<i class="fa-solid fa-download hand-pointer custom-link"
+							   id="@("tooltip-target-download" + businessCase.Id)"
+							   @onclick="(!isBusinessCaseNameNull ? (() => { _selectedBusinessCase = businessCase; _excelDialogRef.Open(); }) : null)"
+							   style="cursor: @(isBusinessCaseNameNull ? "not-allowed" : "pointer");">
+							</i>
+							<TelerikTooltip TargetSelector="@( "#tooltip-target-download" + businessCase.Id)" Position="@TooltipPosition.Bottom">
+								<Template Context="ttipContext">
+									<p><b>Download Plan</b></p>
+								</Template>
+							</TelerikTooltip>
+						</div>
+					</Template>
+				</GridColumn>
+			</GridColumns>
+
+			<NoDataTemplate>
+				<strong>@UIConstants.NoDataAvailable</strong>
+			</NoDataTemplate>
+		</TelerikGrid>
+	</div>
+</div>
+
+<Dialog @ref="_archivedialog" Title="Archive Plan" OnConfirm="@(() => ArchivePlan())">
+	<h4><b>The saved plan will be moved to historical plan.</b></h4>
+	Are you sure you want to move it to historical plan?
+	<Spinner IsVisible="IsLoading" />
+</Dialog>
+
+<ExcelDownloadDialog @ref="_excelDialogRef" SelectedPriceTypeChanged="@OnPriceTypeChanged"
+					 OnConfirm="() => ExcelDownloadAsync(_selectedBusinessCase)">
+</ExcelDownloadDialog>

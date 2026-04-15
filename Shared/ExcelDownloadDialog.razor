@@ -1,0 +1,8 @@
+<Dialog @ref="_excelDialog" Title="Download Excel" OnConfirm="@ConfirmDownload">
+	<p>Please select one of the Crude Avail Price Types</p>
+	<hr />
+	<TelerikRadioGroup Data="PriceTypes"
+					   @bind-Value="@SelectedPriceType"
+					   Layout="RadioGroupLayout.Horizontal">
+	</TelerikRadioGroup>
+</Dialog>

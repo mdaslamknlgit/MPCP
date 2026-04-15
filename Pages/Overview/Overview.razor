@@ -1,0 +1,225 @@
+@page "/{selectedRole}/overview"
+@inherits CommonBase
+@inject ILogger<Overview> logger
+
+<Spinner IsVisible="@_uiLoading" />
+<div class="container-fluid p-2">
+    <div class="row">
+        <div class="col-md-12 p-md-2">
+            <TelerikCard Class="m-overview-container">
+                <CardHeader>
+                    <CardTitle>
+                        <strong>Alerts and Notifications</strong>
+                        <TelerikButton FillMode="@(ThemeConstants.Button.FillMode.Flat)" Icon="@GridCardStates[0].ExpandIcon" @onclick="@(() => ToggleAnimationContainerAsync(0))"></TelerikButton>
+                    </CardTitle>
+                </CardHeader>
+                <TelerikAnimationContainer @ref="@GridCardStates[0].ContainerRef" AnimationType="@AnimationType.RevealVertical"
+                                           ParentInlineStyle="display: block; position: relative;">
+                    <CardBody>
+                        <div class="row m-0">
+                            <div class="col p-0">
+                                <TelerikGrid id="NotificationGrid " Data="@NotificationList" @ref="@GridNotificationRef" Height="60vh"  Width="100%"
+                                             ScrollMode="@GridScrollMode.Scrollable" Sortable="true" Resizable="true"
+                                             Groupable="true" FilterMode="@GridFilterMode.FilterMenu"
+                                             FilterMenuType="@FilterMenuType.CheckBoxList"
+                                             ShowColumnMenu="true" Reorderable="true" Class="custom-icons">
+                                    <GridSettings>
+                                        <GridColumnMenuSettings Lockable="false">
+                                            <GridColumnMenuChooser>
+                                                <Template>
+                                                    @{
+                                                        var columns = context.Columns;
+                                                        foreach (var column in columns)
+                                                        {
+                                                            <div>
+                                                                <GridColumnMenuChooserItem Title="@column.DisplayTitle" ColumnId="@column.Id" />
+                                                            </div>
+                                                        }
+                                                    }
+                                                </Template>
+                                            </GridColumnMenuChooser>
+                                        </GridColumnMenuSettings>
+                                    </GridSettings>
+                                    <DetailTemplate>
+                                        @{
+                                            var notificationUI = context as NotificationEventsModelUI;
+                                                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
+                                                    <tbody>
+                                                    @foreach (var item in @notificationUI.eventData)
+                                                        {
+                                                            <tr>
+                                                                <td style="border: 1px solid #ddd;"><b>@item.Key</b></td>
+                                                                <td style="border: 1px solid #ddd;">@((MarkupString)@item.Value)</td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                        }
+                                    </DetailTemplate>
+                                    <GridColumns>
+                                        <GridColumn id="correlationid" Field=@nameof(NotificationEventsModelUI.CorrelationId) Title="Correlation ID">
+                                            <Template>
+                                                @{
+                                                    <div>@((context as NotificationEventsModelUI).CorrelationId)</div>
+                                                }
+                                            </Template>
+                                        </GridColumn>
+                                        <GridColumn id="planname" Field=@nameof(NotificationEventsModelUI.PlanName) Title="Plan Name">
+                                            <Template>
+                                                @{
+                                                    <div>@((context as NotificationEventsModelUI).PlanName)</div>
+                                                }
+                                            </Template>
+                                        </GridColumn>
+                                        <GridColumn id="periodname" Field=@nameof(NotificationEventsModelUI.PeriodName) Title="Period Name">
+                                            <Template>
+                                                @{
+                                                    <div>@((context as NotificationEventsModelUI).PeriodName)</div>
+                                                }
+                                            </Template>
+                                        </GridColumn>
+                                        <GridColumn id="entityname" Field=@nameof(NotificationEventsModelUI.EntityName) Title="Entity Name">
+                                            <Template>
+                                                @{
+                                                    <div>@((context as NotificationEventsModelUI).EntityName)</div>
+                                                }
+                                            </Template>
+                                        </GridColumn>
+                                        <GridColumn id="severitylevel" Field=@nameof(NotificationEventsModelUI.severityLevel) Title="Severity Level">
+                                            <Template>
+                                                @{
+                                                    <div>@((context as NotificationEventsModelUI).severityLevel)</div>
+                                                }
+                                            </Template>
+                                        </GridColumn>
+                                        <GridColumn id="impact" Field=@nameof(NotificationEventsModelUI.impact) Title="Impact">
+                                            <Template>
+                                                @{
+                                                    <div>@((context as NotificationEventsModelUI).impact)</div>
+                                                }
+                                            </Template>
+                                        </GridColumn>
+                                        <GridColumn id="occurrencetime" Field=@nameof(NotificationEventsModelUI.occurrenceTime) Title="Occurrence Time">
+                                            <Template>
+                                                @{
+                                                    <div>@((context as NotificationEventsModelUI).occurrenceTime)</div>
+                                                }
+                                            </Template>
+                                        </GridColumn>
+                                        @*<GridColumn id="userid" Field=@nameof(NotificationUI.createdByUserId) Title="Created By PIC">
+                                            <Template>
+                                                @{
+                                                    <div>@((context as NotificationUI).createdByUserId)</div>
+                                                }
+                                            </Template>
+                                        </GridColumn>*@
+                                    </GridColumns>
+                                    <NoDataTemplate>
+                                        @{
+                                            @if(string.IsNullOrEmpty(NotificationError))
+                                            {
+                                                <strong>No Data Available.</strong>
+                                            }
+                                            else
+                                            {
+                                                <strong style="color:red;">@NotificationError</strong>
+                                            }
+
+                                        }
+                                    </NoDataTemplate>
+                                </TelerikGrid>
+                            </div>
+                        </div>
+                    </CardBody>
+                </TelerikAnimationContainer>
+            </TelerikCard>
+            <TelerikCard Class="m-overview-container">
+                <CardHeader>
+                    <CardTitle>
+                        <strong>Action</strong>
+                        <TelerikButton FillMode="@(ThemeConstants.Button.FillMode.Flat)" Icon="@GridCardStates[1].ExpandIcon" @onclick="@(() => ToggleAnimationContainerAsync(1))"></TelerikButton>
+                    </CardTitle>
+                </CardHeader>
+                <TelerikAnimationContainer @ref="@GridCardStates[1].ContainerRef" AnimationType="@AnimationType.RevealVertical"
+                                           ParentInlineStyle="display: block; position: relative;">
+                    <CardBody>
+                        <ul>
+                            @foreach (UserActionFailures ua in ActionFailures)
+                            {
+                                <li>
+                                    <div class="d-inline-block m-icon"><img src="../Images/IconFail.svg" /></div>
+                                    <div class="d-inline-block">
+                                        <div class="font-18 font-400">@ua.Name</div>
+                                        <div>By @ua.UserName . @ua.Time mins ago</div>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    </CardBody>
+                </TelerikAnimationContainer>
+            </TelerikCard>
+            <TelerikCard Class="m-overview-container">
+                <CardHeader>
+                    <CardTitle>
+                        <strong>Job Status</strong>
+                        <TelerikButton FillMode="@(ThemeConstants.Button.FillMode.Flat)" Icon="@GridCardStates[2].ExpandIcon" @onclick="@(() => ToggleAnimationContainerAsync(2))"></TelerikButton>
+                    </CardTitle>
+                </CardHeader>
+                <TelerikAnimationContainer @ref="@GridCardStates[2].ContainerRef" AnimationType="@AnimationType.RevealVertical"
+                                           ParentInlineStyle="display: block; position: relative;">
+                <CardBody>
+                    <ul>
+                        @foreach (JobStatus js in JobStatus)
+                        {
+                            if (js.Status == "Successful")
+                            {
+                                <li>
+                                    <div class="d-inline-block m-icon">
+                                        <i class="fa fa-check-circle-o fafa k-text-success font-20" aria-hidden="true"></i>
+                                    </div>
+                                    <div class="d-inline-block">
+                                        <div class="font-700">@js.Name</div>
+                                        <div class="font-14">@js.Status on @js.StatusTime</div>
+                                    </div>
+                                </li>
+                            }
+                            else
+                            {
+                                <li>
+                                    <div class="d-inline-block m-icon"><img src="../Images/IconFail.svg" /></div>
+                                    <div class="d-inline-block">
+                                        <div class="font-700">@js.Name</div>
+                                        <div class="font-14">By @js.ByName .@js.StatusTime mins ago</div>
+                                    </div>
+                                </li>
+                            }
+                        }
+                    </ul>
+                </CardBody>
+                </TelerikAnimationContainer>
+            </TelerikCard>
+            <TelerikCard Class="m-overview-container">
+                <CardHeader>
+                    <CardTitle>
+                        <strong>Latest Successful Data Sync</strong>
+                        <TelerikButton FillMode="@(ThemeConstants.Button.FillMode.Flat)" Icon="@GridCardStates[3].ExpandIcon" @onclick="@(() => ToggleAnimationContainerAsync(3))"></TelerikButton>
+                    </CardTitle>
+                </CardHeader>
+                <TelerikAnimationContainer @ref="@GridCardStates[3].ContainerRef" AnimationType="@AnimationType.RevealVertical"
+                                           ParentInlineStyle="display: block; position: relative;">
+                    <CardBody>
+                        <ul>
+                            @foreach (DataSync ds in DataSync)
+                            {
+                                <li>
+                                    <div class="font-700">@ds.Name</div>
+                                    <div class="font-14">@ds.Time</div>
+                                </li>
+                            }
+                        </ul>
+                    </CardBody>
+                </TelerikAnimationContainer>
+            </TelerikCard>
+        </div>
+    </div>
+</div>

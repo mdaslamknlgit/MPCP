@@ -1,0 +1,18 @@
+@using Telerik.DataSource
+
+<TelerikCheckBoxListFilter         
+    Data="@Data" Field="@Field"
+    @bind-FilterDescriptor="@FilterDescriptor">
+</TelerikCheckBoxListFilter>
+
+@code {
+    [Parameter]
+    public IEnumerable<object>? Data { get; set; }
+    [Parameter]
+    public string Field { get; set; } = string.Empty;
+    [Parameter]
+    public CompositeFilterDescriptor? FilterDescriptor { get; set; }
+    [Parameter]
+    public EventCallback<CompositeFilterDescriptor?> FilterDescriptorChanged { get; set; }
+
+}

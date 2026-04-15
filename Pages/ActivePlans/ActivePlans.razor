@@ -1,0 +1,148 @@
+@page "/{selectedRole}/{areaValue}/plans/active"
+@using MPC.PlanSched.Shared.Common.Extensions
+@inherits CommonBase
+
+@if (_isMidtermEnabled)
+{
+    <MidtermActivePlans SelectedRole="@SelectedRole" AreaValue="@AreaValue"/>
+}
+else
+{
+<Spinner IsVisible="@IsLoading()" />
+<div class="row">
+    <div class="col-12 m-space">
+        <div class="font-600 font-26"><i class="fa-solid fa-earth-americas" />  @(Area.Description()) - List of Regions</div>
+    </div>
+    <div class="col-12 m-space">
+        <div class="font-20">Select a Region to view / update upcoming regional plans</div>
+    </div>
+
+    <div class="col-12">
+        <TelerikGrid Data="@_regions" Class="grid-no-scroll">
+            <GridColumns>
+                <GridColumn Field="RegionName" Title="Region" />
+                <GridColumn Field="Refinery" Title="Refineries" />
+                <GridColumn Field="" Title=@_localTimezone>
+                    <Template>
+                        <div class="font-700">@((context as RegionModel).UpdatedOn)</div>
+                        <div> @((context as RegionModel).ConcatUpdatedBy)</div>
+                    </Template>
+                </GridColumn>
+                <GridColumn Field="PlanType" Title="Plan Type">
+                     <Template>
+                        @{
+                            var region = (RegionModel)context;
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <TelerikDropDownList id="plan-types"  Data="@region.PlanTypes" @bind-Value="region.PlanType" 
+                                TextField="@nameof(PlanTypes.Name)" ValueField="@nameof(PlanTypes.Name)">
+                                <ItemTemplate Context="item">
+                                    <span title="@item.Description">
+                                              @item.Name
+                                    </span>
+                                    </ItemTemplate>
+    
+                                    <ValueTemplate Context="selected">
+                                    <span title="@selected?.Description">
+                                    @selected?.Name
+                                    </span>
+                                    </ValueTemplate>
+                                <DropDownListSettings>
+
+                                    <DropDownListPopupSettings Height="auto" />
+                                </DropDownListSettings>
+                                </TelerikDropDownList>
+							<i class="fa-solid fa-circle-check hand-pointer" @onclick="@(() => {
+                                if(region.BusinessCase!=null){
+                                _selectedBusinessCase = region.BusinessCase;
+                                _selectedBusinessCase.PlanType = region.PlanType;}
+                                                    _planTypeDialog.Open(); })"></i>
+							</div>
+                        }
+                     </Template>
+                    </GridColumn>
+                <GridColumn Field="">
+                    <Template>
+                        @{
+                            var regionItem = (RegionModel)context;
+                            if (regionItem.BusinessCase is null)
+                            {
+                                <a style="cursor: not-allowed; pointer-events: none; opacity: 0.5;">View/Edit Saved Plan</a>
+                            }
+                            else
+                            {
+                                <AuthorizeView Policy="@ViewPermissionName(regionItem.RegionName, Area.AppDescription())" Context="auth">
+                                    <a class="hand-pointer font-500 custom-link" data-itemRegionName="@regionItem.RegionName" id="@("tooltip-target" + regionItem.RegionName)" @onclick="(() => EditPlan(regionItem))">View/Edit Saved Plan</a>
+                                    <TelerikTooltip TargetSelector="@( "#tooltip-target" + regionItem.RegionName)"
+                                                    Position="@TooltipPosition.Bottom">
+                                        <Template Context="ttipContext">
+                                            <p></p>
+                                            <p><b>Plan Name: </b>@regionItem.BusinessCase.Name</p>
+                                            <p><b>Description: </b>@regionItem.BusinessCase.Description</p>
+                                        </Template>
+                                    </TelerikTooltip>
+                                </AuthorizeView>
+                            }
+                        }
+                    </Template>
+                </GridColumn>
+                <GridColumn Field="">
+                    <Template>
+                        @{
+                            var regionItem = (RegionModel)context;
+                            <MPC.PlanSched.UI.Shared.RefreshDialog @ref="_refreshModal" />
+                            if (regionItem.BusinessCase is null)
+                            {
+                                <a style="cursor: not-allowed; pointer-events: none; opacity: 0.5;">Refresh Data</a>
+                            }
+                            else
+                            {
+                                <AuthorizeView Policy="@(EditPermissionName(regionItem.RegionName, Area.AppDescription()))" Context="auth">
+                                    <a class="hand-pointer font-500 custom-link"
+                                       @onclick="@(() => { _refreshModal.OpenAsync(regionItem); })">
+                                        Refresh Data
+                                    </a>
+                                </AuthorizeView>
+                            }
+                        }
+                    </Template>
+                </GridColumn>
+                <GridColumn Field="">
+                    <Template>
+                        @{
+                            var regionItem = (RegionModel)context;
+                            <AuthorizeView Policy="@(EditPermissionName(regionItem.RegionName, Area.AppDescription()))" Context="auth">
+                                <a class="hand-pointer font-500 custom-link"
+                                   @onclick="@(() => {@DomainNamespaceId = regionItem.DomainNamespace.DestinationApplication.Id;
+                                                       _dialog.Open(); })">
+                                    Start New Plan
+                                </a>
+                            </AuthorizeView>
+                        }
+                    </Template>
+                </GridColumn>
+                <GridColumn Field="" Width="5rem">
+                    <Template>
+                        @{
+                            var regionItem = (RegionModel)context;
+                            <div style="text-align: center;">
+                                <i class="fa-solid fa-download hand-pointer custom-link" @onclick="(() => ExcelDownloadAsync(regionItem))"></i>
+                            </div>
+                        }
+                    </Template>
+                </GridColumn>
+            </GridColumns>
+            <NoDataTemplate>
+                <strong>No Data Available.</strong>
+            </NoDataTemplate>
+        </TelerikGrid>
+    </div>
+</div>
+<Dialog @ref="_dialog" Title="START NEW PLAN" OnConfirm="@(() => StartNewPlanAsync())">
+    <h4><b>The saved plan will be moved to historical plan.</b></h4>
+    Are you sure you want to start a new plan?
+</Dialog>
+<Dialog @ref="_planTypeDialog" Title="Confirmation!" OnConfirm="@(() => FlagPlanTypeAsync(_selectedBusinessCase))">
+    <h4><b>@_selectedBusinessCase.Name</b></h4>
+    Plan will be Moved to Historical Data with Plan type <b>@_selectedBusinessCase.PlanType</b>, do you wish to proceed?
+</Dialog>
+}

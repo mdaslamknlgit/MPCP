@@ -1,0 +1,149 @@
+@using MPC.PlanSched.Service
+@using MPC.PlanSched.Shared.Service.Schema;
+@using PlanSched.Shared.Common;
+@using System.Globalization;
+
+@inherits TransportationCostBaseComponent
+
+<TelerikGrid id="transportationcost-grid-dp" TItem="TransportationCost" OnRead=@OnReadHandlerAsync @ref="@GridTransportationCostReference" Height="60vh"  Width="100%"
+             Sortable="true" Resizable="true"
+             Groupable="true" FilterMode="@GridFilterMode.FilterMenu"
+             FilterMenuType="@FilterMenuType.CheckBoxList"
+             ShowColumnMenu="true" Reorderable="true" Pageable="false"
+             LoadGroupsOnDemand=@LoadGroupsOnDemand>
+    <GridToolBarTemplate>
+        <TelerikButton Size="sm" ButtonType="@ButtonType.Submit" @onclick="ToggleTransportationCostGridGroupByCollapseAsync"
+                       Icon="@( LoadGroupsOnDemand ? SvgIcon.Plus : SvgIcon.Minus )"
+                       Title="@( LoadGroupsOnDemand ? "Expand" : "Collapse" )">
+            Expand/Collapse all groups
+        </TelerikButton>
+    </GridToolBarTemplate>
+    <GridAggregates>
+        <GridAggregate Field=@nameof(TransportationCost.SystemCost) Aggregate="@GridAggregateType.Sum" />
+        <GridAggregate Field=@nameof(TransportationCost.OverrideCostCalculated) Aggregate="@GridAggregateType.Sum" />
+        <GridAggregate Field=@nameof(TransportationCost.ProductName) Aggregate="@GridAggregateType.Count" />
+        <GridAggregate Field=@nameof(TransportationCost.TransportMode) Aggregate="@GridAggregateType.Count" />
+    </GridAggregates>
+    <GridSettings>
+        <GridColumnMenuSettings Lockable="false">
+            <GridColumnMenuChooser>
+                <Template>
+                    @{
+                        var columns = context.Columns;
+                        foreach (var column in columns)
+                        {
+                            <GridColumnMenuChooserItem Title="@column.DisplayTitle" ColumnId="@column.Id" />
+                        }
+                    }
+                </Template>
+            </GridColumnMenuChooser>
+        </GridColumnMenuSettings>
+    </GridSettings>
+    <GridColumns>
+        <GridColumn Width="155px" id="dp-transportation-product-name" Field="ProductName" Title="Material">
+            <FilterMenuTemplate Context="context">
+                <Filter Data="@ProductOptions"
+                        Field="@(nameof(TransportationCost.ProductName))" FilterDescriptor="@context.FilterDescriptor">
+                </Filter>
+            </FilterMenuTemplate>
+            <GroupFooterTemplate>
+                Sub Total
+            </GroupFooterTemplate>
+            <FooterTemplate>
+                Total Records: @context.Count
+            </FooterTemplate>
+        </GridColumn>
+        <GridColumn Width="155px" id="dp-transportation-from-location" Field="FromLocationName" Title="From">
+            <FilterMenuTemplate Context="context"> 
+                <Filter Data="@FromLocationOptions"
+                        Field="@(nameof(TransportationCost.FromLocationName))" FilterDescriptor="@context.FilterDescriptor">
+                </Filter>
+            </FilterMenuTemplate>
+        </GridColumn>
+        <GridColumn Width="155px" id="dp-transportation-to-location" Field="ToLocationName" Title="To">
+            <FilterMenuTemplate Context="context">
+                <Filter Data="@ToLocationOptions"
+                        Field="@(nameof(TransportationCost.ToLocationName))" FilterDescriptor="@context.FilterDescriptor">
+                </Filter>
+            </FilterMenuTemplate>
+        </GridColumn>
+        <GridColumn Width="150px" id="dp-transportation-mode" Field="TransportMode" Title="Mode"></GridColumn>
+        <GridColumn Width="140px" id="dp-transportation-cost-type" Field="CostType" Title="Type"></GridColumn>
+        <GridColumn Width="140px" id="dp-transportation-cost" Field="OverrideCostCalculated" Title="Cost">
+            <Template>
+                @{
+                    var transportationCostData = (TransportationCost)context;
+                    transportationCostData.ValidateCostValue();
+                    <div class="@((CommonHelper.IsValueDifferent(transportationCostData.SystemCost, transportationCostData.OverrideCostCalculated, Constant.DisplayPriceDecimalPlaces)) ? "d-input-different" : "d-none")">
+                        Overridden: @transportationCostData.DisplayTransportationCost(transportationCostData.OverrideCostCalculated)
+                    </div>
+                    <div class="font-14">System: @transportationCostData.DisplayTransportationCost(transportationCostData.SystemCost)</div>
+                }
+            </Template>
+            <GroupFooterTemplate>
+                @context.Sum
+            </GroupFooterTemplate>
+            <FooterTemplate>
+                <CascadingValue Value="IsManualFooter">
+                <GridFooterSum AggregateResults="@context?.AggregateResults"
+                               OverrideProperty=@nameof(TransportationCost.OverrideCostCalculated)
+                               InitialProperty=@nameof(TransportationCost.SystemCost)
+                               PrecisionFormat="@UIConstants.TransportationCostDigitPrecisionFormat" />
+                </CascadingValue>
+            </FooterTemplate>
+        </GridColumn>
+        <GridColumn Width="140px" id="dp-transportation-cost-factor" Field="OverrideCostFactor" Title="Cost Factor" Visible=@IsOverrideVisible>
+            <Template>
+                <CascadingValue Value="ReadOnlyFlag">
+                    <TransportationCostInput Context="context"
+                                             Precision=@TransportCostDecimalPlaces
+                                             ValueFunc="TransportationCostData => TransportationCostData.OverrideCostFactor"
+                                             OnChange="((ChangeEventArgs e) => OverrideCostValue(e, context, UIConstants.PercentageEntityValue))" />
+                    <span style="color:red">@(((TransportationCost)context).CostFactorValidationMessage)</span>
+                </CascadingValue>
+            </Template>
+        </GridColumn>
+        <GridColumn Width="140px" id="dp-transportation-cost-delta" Field="OverrideCostDelta" Title="Cost Delta" Visible=@IsOverrideVisible>
+            <Template>
+                <CascadingValue Value="ReadOnlyFlag">
+                    <TransportationCostInput Context="context"
+                                             Precision=@TransportCostDecimalPlaces
+                                             ValueFunc="TransportationCostData => TransportationCostData.OverrideCostDelta"
+                                             OnChange="((ChangeEventArgs e) => OverrideCostValue(e, context, UIConstants.OffsetEntityValue))" />
+                    <span style="color:red">@(((TransportationCost)context).CostDeltaValidationMessage)</span>
+                </CascadingValue>
+            </Template>
+        </GridColumn>
+        <GridColumn Width="140px" id="dp-transportation-cost-absolute" Field="OverrideCostAbsolute" Title="Cost Override" Visible=@IsOverrideVisible>
+            <Template>
+                <CascadingValue Value="ReadOnlyFlag">
+                    <TransportationCostInput Context="context"
+                                             Precision=@TransportCostDecimalPlaces
+											 ValueFunc="TransportationCostData => GetValue(TransportationCostData.SystemCost, TransportationCostData.OverrideCostCalculated, TransportationCostData.OverrideCostAbsolute, Constant.DisplayPriceDecimalPlaces)"
+                                             OnChange="((ChangeEventArgs e) => OverrideCostValue(e, context, UIConstants.AbsoluteEntityValue))" />
+                </CascadingValue>
+            </Template>
+        </GridColumn>
+        <GridColumn Width="140px" id="dp-transportation-system-uom" Field="SystemCostUOM" Title="UoM (Currency/Unit)"></GridColumn>
+        <GridColumn Width="140px" Id="rp-transportation-Data-Input-Date" Field="DataInputDate" Title="Data Input Date" Visible=@IsDataInputDateVisible>
+            <Template>
+                @{
+                    var transportationCostData = (TransportationCost)context;
+                    <div>@transportationCostData.DataInputDate?.ToString("MM/dd/yyyy")</div>
+                }
+            </Template>
+        </GridColumn>
+        <GridColumn Width="140px" id="dp-transportation-modified-flag" Field="IsOverridden" Title="Data Override" Visible=@IsOverrideVisible>
+            <Template>
+                @{
+                    var transportationCostData = (TransportationCost)context;
+                    transportationCostData.SetOverrideFlag();
+                    <div class="text-center">@transportationCostData.IsOverridden</div>
+                }
+            </Template>
+        </GridColumn>
+    </GridColumns>
+    <NoDataTemplate>
+        <strong>@UIConstants.NoDataAvailable</strong>
+    </NoDataTemplate>
+</TelerikGrid>

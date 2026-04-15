@@ -1,0 +1,112 @@
+@page "/{selectedRole}/refineryplanning/plans/active"
+@using MPC.PlanSched.Shared.Common.Extensions
+@using MPC.PlanSched.Shared.Service.Schema
+@inherits CommonBase
+
+<Spinner IsVisible="@IsLoading()" />
+
+<div class="row">
+    <div class="col-12 m-space">
+        <div class="font-600 font-26">
+            <i class="fa-solid fa-earth-americas" /> @(Area.Description()) - List of Refineries
+        </div>
+    </div>
+
+    <div class="col-12 m-space">
+        <div class="font-20">
+           Select a Refinery to view/create upcoming refinery plans
+        </div>
+    </div>
+
+    <div class="col-12">
+        <TelerikGrid Data="@Refineries" Class="grid-no-scroll">
+            <GridColumns>
+                <GridColumn Field="RegionName" Title="Region" />
+                <GridColumn Field="RefineryCode" Title="Refineries" />
+                <GridColumn Field="" Title=@_localTimezone>
+                    <Template>
+                        <div class="font-700">@((context as RefineryModel).UpdatedOn)</div>
+                        <div> @((context as RefineryModel).ConcatUpdatedBy)</div>
+                    </Template>
+                </GridColumn>
+                <GridColumn Field="">
+                    <Template>
+                        @{
+                            var refineryModel = (RefineryModel)context;
+                            if (refineryModel?.BusinessCase?.Name is null)
+                            {
+                                <a style="cursor: not-allowed; pointer-events: none; opacity: 0.5;">View Saved Plan</a>
+                            }
+                            else
+                            {
+                                <AuthorizeView Policy="@ViewPPIMSPermissionName(refineryModel.RefineryCode)" Context="auth">
+                                    <a class="hand-pointer font-500 custom-link" data-itemRegionName="@refineryModel.RegionName" id="@("tooltip-target" + refineryModel.RefineryCode)" @onclick="(() => ViewPlan(refineryModel))">View Saved Plan</a>
+                                    <TelerikTooltip TargetSelector="@( "#tooltip-target" + refineryModel.RefineryCode)"
+                                                    Position="@TooltipPosition.Bottom">
+                                        <Template Context="ttipContext">
+                                            <p></p>
+                                            <p><b>Plan Name: </b>@refineryModel.BusinessCase.Name</p>
+                                            <p><b>Description: </b>@refineryModel.BusinessCase.Description</p>
+                                        </Template>
+                                    </TelerikTooltip>
+                                </AuthorizeView>
+                            }
+                        }
+                    </Template>
+                </GridColumn>
+                <GridColumn Field="">
+                    <Template>
+                        @{
+                            var refineryModel = (RefineryModel)context;
+                            <MPC.PlanSched.UI.Shared.RefineryPremiseRefreshDialog @ref="_refreshModal" />
+                            if (refineryModel?.BusinessCase?.Name is null)
+                            {
+                                <a style="cursor: not-allowed; pointer-events: none; opacity: 0.5;">Refresh Data</a>
+                            }
+                            else
+                            {
+								<AuthorizeView Policy="@EditPPIMSPermissionName(refineryModel.RefineryCode)" Context="auth">
+									<a class="hand-pointer font-500 custom-link"
+									   @onclick="@(() => { _refreshModal.OpenAsync(refineryModel); })">
+										Refresh Data
+									</a>
+								</AuthorizeView>                                
+                            }
+                        }
+                    </Template>
+                </GridColumn>
+                <GridColumn Field="">
+                    <Template>
+                        @{
+                            var refineryModel = (RefineryModel)context;
+                           <AuthorizeView Policy="@EditPPIMSPermissionName(refineryModel.RefineryCode)" Context="auth">
+                                <a class="hand-pointer font-500 custom-link"
+                                   @onclick="@(() => {@DomainNamespaceId = refineryModel.DomainNamespace.DestinationApplication.Id;
+                                                       _dialog.Open(); })">
+                                    Start New Plan
+                                </a>
+                            </AuthorizeView>
+                        }
+                    </Template>
+                </GridColumn>
+                <GridColumn Field="" Width="5rem">
+                    <Template>
+                        @{
+                            var refineryModel = (RefineryModel)context;
+                            <div style="text-align: center;">
+                                <i class="fa-solid fa-download hand-pointer custom-link" @onclick="(() => ExcelDownloadAsync(refineryModel))"></i>
+                            </div>
+                        }
+                    </Template>
+                </GridColumn>
+            </GridColumns>
+            <NoDataTemplate>
+                <strong>No Data Available.</strong>
+            </NoDataTemplate>
+        </TelerikGrid>
+    </div>
+</div>
+<Dialog @ref="_dialog" Title="START NEW PLAN" OnConfirm="@(() => StartNewPlanAsync())">
+    <h4><b>The saved plan will be moved to historical plan.</b></h4>
+    Are you sure you want to start a new plan?
+</Dialog>

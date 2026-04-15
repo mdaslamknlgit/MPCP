@@ -1,0 +1,72 @@
+@using Telerik.Blazor.Components
+@inject IPopupService PopupService
+
+<TelerikNotification @ref="NotificationRef" Class="MyTelerikNotification" AnimationDuration="160000" AnimationType="AnimationType.None">
+    <Template>
+        @{
+            var isError = context.ThemeColor == ThemeConstants.Notification.ThemeColor.Error;
+            var errorClass = "notification-error";
+            var infoClass = "notification-info";
+        }
+        @if (isError)
+        {
+            <details class="@errorClass">
+                <summary>Error on the page click here</summary>
+                <div>
+                    <p id="error-details">@FormatMessage(@context.Text)</p>
+                    <button type="button" onclick="copyErrorDetails()">Copy Details</button>
+                </div>
+            </details>
+        }
+        else
+        {
+            <div class="@infoClass">
+                <p>@context.Text</p>
+            </div>
+        }
+    </Template>
+</TelerikNotification>
+
+@code {
+    private TelerikNotification? NotificationRef;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender && NotificationRef != null)
+        {
+            PopupService.Register(NotificationRef);
+        }
+    }
+    private static MarkupString FormatMessage(string message)
+    {
+        if (string.IsNullOrEmpty(message))
+            return new MarkupString(string.Empty);
+
+        var lines = message.Split('\n');
+        var sb = new System.Text.StringBuilder();
+
+        foreach (var line in lines)
+        {
+            var start = 0;
+            while (start < line.Length)
+            {
+                var len = Math.Min(150, line.Length - start);
+                sb.Append(line.Substring(start, len));
+                sb.Append("<br/>");
+                start += len;
+            }
+        }
+        return new MarkupString(sb.ToString());
+    }
+
+}
+
+@* Add this script block to enable copy functionality *@
+<script>
+    function copyErrorDetails() {
+        var details = document.getElementById('error-details');
+        if (details) {
+            navigator.clipboard.writeText(details.textContent);
+        }
+    }
+</script>

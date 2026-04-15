@@ -1,0 +1,90 @@
+@using MPC.PlanSched.Service
+@using MPC.PlanSched.UI.ViewModel;
+@using MPC.PlanSched.UI;
+@layout TelerikLayout
+@inherits LayoutComponentBase
+
+<CascadingValue Value="SelectedRole" Name="SelectedRole">
+    <div class="page">
+        <main>
+            <PageTitle>MPC</PageTitle>
+            <div>
+                <div class="mpc-top-header d-flex align-content-center mpc-main-banner">
+                    <div class="col">
+                        <div class="ps-2">
+                            <TelerikButton OnClick="@(() => NavDrawer.Toggle())" Icon="@SvgIcon.Menu" FillMode="@ThemeConstants.Button.FillMode.Flat"></TelerikButton>
+                        </div>
+                        <div class="px-2"><img src="../Images/M_Logo.png" height="40" /></div>
+                        <div class="font-800 font-20">@PlanNSchedConstant.ApplicationName</div>
+                    </div>
+                    <div class="row" style="margin-right:0px">
+                        <div class="col-auto text-end">
+                            <div class="font-500">@UserName</div>
+                            <div class="font-10">@UserEmailId</div>
+                            <div class="font-10">@UserView</div>
+                        </div>
+                        <div class="col-auto">
+                            <TelerikButton OnClick="@ToggleAnimationContainerAsync" FillMode="flat" Class="avatar-dropdown">
+                                <TelerikAvatar Type="AvatarType.Image" ThemeColor="@Telerik.Blazor.ThemeConstants.Avatar.ThemeColor.Light">
+                                    <img src="../Images/User.png" class="img-fluid" alt="">
+                                </TelerikAvatar>
+                            </TelerikButton>
+                            <TelerikAnimationContainer @ref="@AnimationContainer" Width="200px" Top="56px" ParentInlineStyle="right: 5px">
+                                <div class="k-var--background k-border-inverse animation-container">
+                                    <TelerikTreeView Data="@ThemeOptions"
+                                                     SelectionMode="@TreeViewSelectionMode.Single"
+                                                     @bind-SelectedItems="@SelectedItems"
+                                                     @bind-ExpandedItems="@ExpandedItems"
+                                                     OnItemClick="ChangeThemeAsync">
+                                    </TelerikTreeView>
+                                </div>
+                            </TelerikAnimationContainer>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="main-height" style="position: relative; display: flex;">
+                <NavigationDrawer @ref="NavDrawer"></NavigationDrawer>
+                <div class="col-12" style="margin: 0; flex: 1; overflow: auto;">
+                        <CascadingValue Value="NavDrawer">
+                            <div class="main k-body" style="margin: 0;overflow: auto;">
+                                <NavMenu />
+                                <article class="content px-4">
+                                    <div class="container-fluid">
+                                        <ErrorBoundary @ref="@ErrorBoundary" Context="Exception">
+                                            <ChildContent>
+                                                @Body
+                                            </ChildContent>
+                                            <ErrorContent>
+                                                <div class="alert alert-secondary text-danger alert-dismissible d-none" title="Application Error! Try to relogin or contact administrator">
+                                                </div>
+                                            </ErrorContent>
+                                        </ErrorBoundary>
+                                    </div>
+                                </article>
+                            </div>
+                        </CascadingValue>
+                </div>
+            </div>
+            <div>
+                <footer class="d-grid order-1">
+                    <div class="row align-content-center">
+                        <div class="col font-14"><span>Marathon Petroleum</span><span>@ConfigurationUI.FooterAppDetails</span></div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+</CascadingValue>
+
+
+<CustomNotification></CustomNotification>
+
+
+@*<div class="alert alert-secondary text-danger alert-dismissible">
+
+    @Exception.GetType(): @Exception.Message
+
+    <button class="btn-close" @onclick="@errorBoundary.Recover"></button>
+
+</div>*@

@@ -1,0 +1,42 @@
+@using MPC.PlanSched.Shared.Service.Schema
+
+<div>
+	@if (PlanPremiseType == PlanPremiseType.RefineryPremise || OverrideProperty == string.Empty)
+	{
+	<label>Total: @DisplayTotal(InitialTotal)</label>
+	}
+	else
+	{
+	<label>Total: @DisplayTotal(OverrideTotal) (@DisplayTotal(InitialTotal))</label>
+	}
+</div>
+
+@code {
+	[Parameter]
+	public List<Telerik.DataSource.AggregateResult> AggregateResults { get; set; } = new List<Telerik.DataSource.AggregateResult>();
+	[Parameter]
+	public string OverrideProperty { get; set; } = string.Empty;
+	[Parameter]
+	public string InitialProperty { get; set; } = string.Empty;
+	[Parameter]
+	public string PrecisionFormat { get; set; } = string.Empty;
+	[Parameter]
+	public PlanPremiseType PlanPremiseType { get; set; }
+	public decimal? InitialTotal { get; set; }
+	public decimal? OverrideTotal { get; set; }
+
+	protected override void OnParametersSet()
+	{
+		OverrideTotal = GetOverrideTotal();
+		InitialTotal = GetInitialTotal();
+	}
+
+	private decimal? GetOverrideTotal() =>
+		AggregateResults.FirstOrDefault(r => r.AggregateMethodName == "Sum" && r.Member == OverrideProperty)?.Value as decimal?;
+
+	private decimal? GetInitialTotal() =>
+				AggregateResults.FirstOrDefault(r => r.AggregateMethodName == "Sum" && r.Member == InitialProperty)?.Value as decimal?;
+
+	private string DisplayTotal(decimal? total) =>
+		total is not null ? ((decimal)total).ToString(PrecisionFormat) : "";
+}

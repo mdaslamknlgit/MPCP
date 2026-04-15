@@ -1,0 +1,355 @@
+@page "/backcastingproductdemandprice/{selectedRole}/{businessCaseId:int}/{isHistoricalPlan:bool}"
+@using Microsoft.Extensions.Logging;
+@using MPC.PlanSched.Service;
+@using MPC.PlanSched.Shared.Service.Schema;
+@using PlanSched.Shared.Common;
+@using System.Globalization;
+
+@inherits ProductDemandPriceBaseComponent
+
+<Spinner IsVisible="@IsLoading()" />
+
+<div class="row align-items-center">
+	<div class="col">
+		<div class="row">
+			<div class="col-auto">
+				<a class="fa fa-long-arrow-left text-decoration-none d-link" @onclick="() => NavigateToRegionBackcasting(SelectedRole)"></a>
+			</div>
+			<div class="col font-600">@UIConstants.EditPlan @RegionTitle <br />(@PlanDescription) </div>
+		</div>
+	</div>
+	<div class="col d-flex flex-column">
+		<div class="font-600">@DataLoadingStatusMessage</div>
+
+		@if (ProductDemandAndPriceData != null && ProductDemandAndPriceData.Any(d => d.BACloseStatus == UIConstants.No))
+		{
+			<div class="text-danger font-italic font-14 mt-1">
+				❌  @UIConstants.FinalizedDataWarningMessage
+			</div>
+		}
+	</div>
+	<div class="col-auto d-flex flex-column align-items-center">
+		<a class="hand-pointer font-500 custom-link"
+		   @onclick="@(ReadOnlyFlag ? null : (() => _refreshModal.OpenAsync(RegionModel)))"
+		   style="@(ReadOnlyFlag ? "pointer-events: none; opacity: 0.5;" : "")">
+			Refresh Data
+		</a>
+		<CascadingValue Value="SelectedRole">
+			<a class="hand-pointer font-500 custom-link mt-2"
+			   @onclick="@(() => {_notificationModal.OpenAsync(RegionModel, SelectedRole, PlanNSchedConstant.DemandPrice); })">
+				Alerts and Notification
+			</a>
+		</CascadingValue>
+	</div>
+	<div class="col-auto">
+		<span class="font-14 font-700" id="region-updated-on">@PlanUpdatedOn</span>
+		<div>
+			<TelerikButton Id="demand-excel-download-btn" OnClick="@(() => { _excelDialogRef.Open();})" Size="small"><i class="fa-solid fa-download"></i> Download</TelerikButton>
+		</div>
+	</div>
+</div>
+<div class="row align-items-center">
+	<div class="col-2">
+		<span class="font-14 font-700">@UIConstants.PriceEffectiveDate @PriceEffectiveDate</span>
+	</div>
+</div>
+<div class="row align-items-center m-title-text m-space">
+	<div class="col-auto">
+		<div class="font-700">@UIConstants.PlanningPeriod</div>
+	</div>
+	<div class="col-3">
+		<TelerikDropDownList id="ddl-period" Data="@Periods" TextField="PeriodDisplayName" ValueField="PeriodID"
+							 Value="@SelectedPeriodId" ValueChanged="@( (int v) => GetProductDemandPricesOnPeriodSelectionChangedAsync(v) )">
+			<DropDownListSettings>
+				<DropDownListPopupSettings Height="auto" />
+			</DropDownListSettings>
+			<HeaderTemplate>
+				<strong>@UIConstants.SelectPeriod</strong>
+			</HeaderTemplate>
+			<NoDataTemplate>
+				<div class="no-data-template">
+					<TelerikFontIcon Class="k-icon k-icon-lg" Icon="@FontIcon.FilesError"></TelerikFontIcon>
+					<p>@UIConstants.NoDataAvailable</p>
+				</div>
+			</NoDataTemplate>
+		</TelerikDropDownList>
+	</div>
+	<div class="col"></div>
+	<div class="col-auto">
+		<div class="font-700">@UIConstants.SortBy</div>
+	</div>
+	<div class="col-5">
+		<TelerikButtonGroup SelectionMode="@ButtonGroupSelectionMode.Single">
+			<ButtonGroupToggleButton @bind-Selected="@NoneSelected" @onclick="() => SortDemandPricesBy(x => x.Id)">None</ButtonGroupToggleButton>
+			<ButtonGroupToggleButton @onclick="() => SortDemandPricesBy(x => x.LocationName)">Market</ButtonGroupToggleButton>
+			<ButtonGroupToggleButton @onclick="() => SortDemandPricesBy(x => x.ProductName)">Product</ButtonGroupToggleButton>
+		</TelerikButtonGroup>
+	</div>
+</div>
+<div class="row m-0">
+	<div class="col p-0">
+        <TelerikGrid id="demand-grid-rp" TItem="ProductDemandAndPrice" OnRead="@(args => OnReadHandlerAsync(args, IsReady, ProductDemandAndPriceData ?? []))" @ref="@GridDemandReference" Height="60vh"  Width="240vh"
+					 Sortable="true" Resizable="true"
+					 Groupable="true" FilterMode="@GridFilterMode.FilterMenu"
+					 FilterMenuType="@FilterMenuType.CheckBoxList"
+					 ShowColumnMenu="true" Reorderable="true" Pageable="false"
+					 LoadGroupsOnDemand=@LoadGroupsOnDemand>
+			<GridToolBarTemplate>
+				<TelerikButton Size="sm" ButtonType="@ButtonType.Submit" @onclick="ToggleDemandGridGroupByCollapseAsync"
+							   Icon="@( LoadGroupsOnDemand ? SvgIcon.Plus : SvgIcon.Minus )"
+							   Title="@( LoadGroupsOnDemand ? "Expand" : "Collapse" )">
+					Expand/Collapse all groups
+				</TelerikButton>
+			</GridToolBarTemplate>
+			<GridAggregates>
+				<GridAggregate Field=@nameof(ProductDemandAndPrice.MinDemandOverrideCalculated) Aggregate="@GridAggregateType.Sum" />
+				<GridAggregate Field=@nameof(ProductDemandAndPrice.SystemMinDemand) Aggregate="@GridAggregateType.Sum" />
+				<GridAggregate Field=@nameof(ProductDemandAndPrice.MaxDemandOverrideCalculated) Aggregate="@GridAggregateType.Sum" />
+				<GridAggregate Field=@nameof(ProductDemandAndPrice.SystemMaxDemand) Aggregate="@GridAggregateType.Sum" />
+				<GridAggregate Field=@nameof(ProductDemandAndPrice.PriceOverrideCalculated) Aggregate="@GridAggregateType.Sum" />
+				<GridAggregate Field=@nameof(ProductDemandAndPrice.SystemPrice) Aggregate="@GridAggregateType.Sum" />
+				<GridAggregate Field=@nameof(ProductDemandAndPrice.ProductName) Aggregate="@GridAggregateType.Count" />
+				<GridAggregate Field=@nameof(ProductDemandAndPrice.LocationName) Aggregate="@GridAggregateType.Count" />
+			</GridAggregates>
+			<GridSettings>
+				<GridColumnMenuSettings Lockable="false">
+					<GridColumnMenuChooser>
+						<Template>
+							@{
+								var columns = context.Columns;
+								foreach (var column in columns)
+								{
+									<GridColumnMenuChooserItem Title="@column.DisplayTitle" ColumnId="@column.Id" />
+								}
+							}
+						</Template>
+					</GridColumnMenuChooser>
+				</GridColumnMenuSettings>
+			</GridSettings>
+			<GridColumns>
+				<GridColumn Width="140px" Id="rp-demand-location-name" Field="LocationName" Title="Location" Locked="true">
+                    <FilterMenuTemplate Context="context">
+                        <Filter Data="@LocationOptions"
+                                Field="@(nameof(ProductDemandAndPrice.LocationName))" FilterDescriptor="@context.FilterDescriptor">
+                        </Filter>
+                    </FilterMenuTemplate>
+					<GroupFooterTemplate>
+						Sub Total
+					</GroupFooterTemplate>
+					<FooterTemplate>
+						Total Records: @context.Count
+					</FooterTemplate>
+				</GridColumn>
+				<GridColumn Width="140px" Id="rp-demand-location-description" Field="LocationDescription" Title="Location Description" Locked="true" Visible="false"> </GridColumn>
+				<GridColumn Width="140px" Id="rp-demand-product-name" Field="ProductName" Title="Product Name & PIMS Code" Locked="true">
+                    <FilterMenuTemplate Context="context">
+                        <Filter Data="@ProductOptions"
+                                Field="@(nameof(ProductDemandAndPrice.ProductName))" FilterDescriptor="@context.FilterDescriptor">
+                        </Filter>
+                    </FilterMenuTemplate>
+					<Template>
+						@{
+							<div>@((context as ProductDemandAndPrice).ProductName)</div>
+							<div>@((context as ProductDemandAndPrice).PIMSCode)</div>
+						}
+					</Template>
+				</GridColumn>
+				<GridColumn Width="140px" Id="rp-demand-product-description" Field="ProductDescription" Title="Product Description" Locked="true"> </GridColumn>
+				<GridColumn Width="140px" id="rp-demand-tier" Field="ContractorType" Title="Tier" Locked="true"></GridColumn>
+				<GridColumn Width="140px" Id="rp-demand-min" Field="MinDemandOverrideCalculated" Title="Min. Demand (MBD)" Locked="true">
+					<Template>
+						@{
+							var demandAndPriceData = (ProductDemandAndPrice)context;
+							demandAndPriceData.ValidateDemandValue();
+							<div class="@((@CommonHelper.IsValueDifferent(demandAndPriceData.SystemMinDemand, demandAndPriceData.MinDemandOverrideCalculated, Constant.DisplayQtyDecimalPlaces))? "d-input-different" : "d-none") @((@demandAndPriceData.MinDemandOverrideCalculated <= DemandOverrideMinimumValue) ? "d-input-different-invalid" : "")">
+                                Overridden: @demandAndPriceData.DisplayDemandQuantity(demandAndPriceData.MinDemandOverrideCalculated)
+							</div>
+							<div class="@((@CommonHelper.IsValueDifferent(demandAndPriceData.SystemMinDemand, demandAndPriceData.PreviousSystemMinDemand, Constant.DisplayQtyDecimalPlaces))? "d-input-different" : "d-none") ">
+								Previous System: @(demandAndPriceData.PreviousSystemMinDemand?.ToString("0.000") ?? string.Empty)
+							</div>
+							<div class="@(demandAndPriceData.CrossRegionSystemMinDemand.HasValue ? "d-input-different" : "d-none") ">
+								Cross Regional: @(demandAndPriceData.CrossRegionSystemMinDemand?.ToString("0.000") ?? string.Empty)
+							</div>
+							<div>System: @(demandAndPriceData.SystemMinDemand?.ToString("0.000") ?? string.Empty)</div>
+							<span style="color:red">@demandAndPriceData.MinCalculatedValidationMessage</span>
+						}
+					</Template>
+					<GroupFooterTemplate>
+						@context.Sum
+					</GroupFooterTemplate>
+					<FooterTemplate>
+						<GridFooterSum AggregateResults="@context?.AggregateResults"
+									   OverrideProperty=@nameof(ProductDemandAndPrice.MinDemandOverrideCalculated)
+									   InitialProperty=@nameof(ProductDemandAndPrice.SystemMinDemand)
+									   PrecisionFormat="@UIConstants.QuantityDigitPrecisionFormat" />
+					</FooterTemplate>
+				</GridColumn>
+				<GridColumn Width="140px" Id="rp-demand-max" Field="MaxDemandOverrideCalculated" Title="Max. Demand (MBD)" Locked="true">
+					<Template>
+						@{
+							var demandAndPriceData = (ProductDemandAndPrice)context;
+							demandAndPriceData.ValidateDemandValue();
+							<div class="@((@CommonHelper.IsValueDifferent(demandAndPriceData.SystemMaxDemand, demandAndPriceData.MaxDemandOverrideCalculated, Constant.DisplayQtyDecimalPlaces))? "d-input-different" : "d-none") @((@demandAndPriceData.MaxDemandOverrideCalculated <= DemandOverrideMinimumValue) ? "d-input-different-invalid" : "")">
+                                Overridden: @demandAndPriceData.DisplayDemandQuantity(demandAndPriceData.MaxDemandOverrideCalculated)
+							</div>
+							<div class="@((@CommonHelper.IsValueDifferent(demandAndPriceData.SystemMaxDemand, demandAndPriceData.PreviousSystemMaxDemand, Constant.DisplayQtyDecimalPlaces))? "d-input-different" : "d-none") ">
+								Previous System: @(demandAndPriceData.PreviousSystemMaxDemand?.ToString("0.000") ?? string.Empty)
+							</div>
+							<div class="@(demandAndPriceData.CrossRegionSystemMaxDemand.HasValue ? "d-input-different" : "d-none") ">
+								Cross Regional: @(demandAndPriceData.CrossRegionSystemMaxDemand?.ToString("0.000") ?? string.Empty)
+							</div>
+							<div class="font-14">System: @(demandAndPriceData.SystemMaxDemand?.ToString("0.000") ?? string.Empty)</div>
+							<span style="color:red">@demandAndPriceData.MaxCalculatedValidationMessage</span>
+						}
+					</Template>
+					<GroupFooterTemplate>
+						@context.Sum
+					</GroupFooterTemplate>
+					<FooterTemplate>
+						<GridFooterSum AggregateResults="@context?.AggregateResults"
+									   OverrideProperty=@nameof(ProductDemandAndPrice.MaxDemandOverrideCalculated)
+									   InitialProperty=@nameof(ProductDemandAndPrice.SystemMaxDemand)
+									   PrecisionFormat="@UIConstants.QuantityDigitPrecisionFormat" />
+					</FooterTemplate>
+				</GridColumn>
+				<GridColumn Width="140px" Id="rp-demand-uom" Field="SystemQtyUOM" Title="UOM" Visible="false"></GridColumn>
+				<GridColumn Width="140px" Id="rp-demand-price" Field="PriceOverrideCalculated" Title="Price ($/bbl)" Locked="true">
+					<Template>
+						@{
+							var demandAndPriceData = (ProductDemandAndPrice)context;
+							demandAndPriceData.ValidatePriceValue();
+							<div class="@((@CommonHelper.IsValueDifferent(demandAndPriceData.SystemPrice, demandAndPriceData.PriceOverrideCalculated, Constant.DisplayPriceDecimalPlaces))? "d-input-different" : "d-none")">
+								Overridden: @demandAndPriceData.DisplayDemandPrice(demandAndPriceData.PriceOverrideCalculated)
+							</div>
+							<div class="@((@CommonHelper.IsValueDifferent(demandAndPriceData.SystemPrice, demandAndPriceData.PreviousSystemPrice, Constant.DisplayPriceDecimalPlaces))? "d-input-different" : "d-none")">
+								Previous System: @(demandAndPriceData.PreviousSystemPrice?.ToString("0.0000") ?? "")
+							</div>
+							<div class="font-14">System: @demandAndPriceData.DisplayDemandPrice(demandAndPriceData.SystemPrice)</div>
+						}
+					</Template>
+					<GroupFooterTemplate>
+						@context.Sum
+					</GroupFooterTemplate>
+					<FooterTemplate>
+						<GridFooterSum AggregateResults="@context?.AggregateResults"
+									   OverrideProperty=@nameof(ProductDemandAndPrice.PriceOverrideCalculated)
+									   InitialProperty=@nameof(ProductDemandAndPrice.SystemPrice)
+									   PrecisionFormat="@UIConstants.PriceDigitPrecisionFormat" />
+					</FooterTemplate>
+				</GridColumn>
+				<GridColumn Width="140px" Id="rp-demand-price-uom" Field="SystemPriceUOM" Title="PriceUOM" Visible="false"></GridColumn>
+				<GridColumn Width="140px" Id="rp-min-demand-override-absolute" Field="MinDemandOverrideAbsolute" Title="Min Demand Override">
+					<Template>
+						@{
+							var item = (ProductDemandAndPrice)context;
+							var oldTotal = item.MinDemandOverrideCalculated;
+						}
+						<CascadingValue Value="ReadOnlyFlag">
+							<ProductDemandPriceInput Context="context"
+												 Precision=@DemandQuantityDecimalPlaces
+												 ValueFunc="DemandAndPriceData => GetValue(DemandAndPriceData.SystemMinDemand, DemandAndPriceData.MinDemandOverrideCalculated, DemandAndPriceData.MinDemandOverrideAbsolute, Constant.DisplayQtyDecimalPlaces)"
+												 OnChange="((ChangeEventArgs e) => OverrideMinDemandValue(e, context, UIConstants.AbsoluteEntityValue))" />
+						</CascadingValue>
+					</Template>
+				</GridColumn>
+				<GridColumn Width="140px" Id="rp-max-demand-override-absolute" Field="MaxDemandOverrideAbsolute" Title="Max Demand Override">
+					<Template>
+						<CascadingValue Value="ReadOnlyFlag">
+							<ProductDemandPriceInput Context="context"
+												 Precision=@DemandQuantityDecimalPlaces
+												 ValueFunc="DemandAndPriceData => GetValue(DemandAndPriceData.SystemMaxDemand, DemandAndPriceData.MaxDemandOverrideCalculated, DemandAndPriceData.MaxDemandOverrideAbsolute, Constant.DisplayQtyDecimalPlaces)"
+												 OnChange="((ChangeEventArgs e) => OverrideMaxDemandValue(e, context, UIConstants.AbsoluteEntityValue))" />
+						</CascadingValue>
+					</Template>
+				</GridColumn>
+				<GridColumn Width="140px" Id="rp-demand-price-override-absolute" Field="PriceOverrideAbsolute" Title="Price Override">
+					<Template>
+						<CascadingValue Value="ReadOnlyFlag">
+                            <ProductDemandPriceDecimalInput Context="context"
+													 Precision=@DemandPriceDecimalPlaces
+													 ValueFunc="DemandAndPriceData => GetValue(DemandAndPriceData.SystemPrice, DemandAndPriceData.PriceOverrideCalculated, DemandAndPriceData.PriceOverrideAbsolute, Constant.DisplayPriceDecimalPlaces)"
+													 OnChange="((ChangeEventArgs e) => OverridePriceValue(e, context, UIConstants.AbsoluteEntityValue))" />
+						</CascadingValue>
+					</Template>
+				</GridColumn>
+				<GridColumn Width="140px" Id="rp-modified-flag" Field="IsOverridden" Title="Data Override">
+					<Template>
+						@{
+							var demandAndPriceData = (ProductDemandAndPrice)context;
+							demandAndPriceData.SetOverrideFlag();
+							<div class="text-center">@demandAndPriceData.IsOverridden</div>
+						}
+					</Template>
+				</GridColumn>
+				<GridColumn Width="140px" id="rp-demand-cost-updatedby" Field="UpdatedBy" Title="Updated By">
+					<Template>
+						@{
+							var demandAndCostData = (ProductDemandAndPrice)context;
+							<div class="text-center">@demandAndCostData.UpdatedBy</div>
+						}
+					</Template>
+				</GridColumn>
+
+				<GridColumn Width="140px" id="rp-demand-cost-updatedOn" Field="UpdatedOn" Title="Updated On">
+					<Template>
+						@{
+							var demandAndCostData = (ProductDemandAndPrice)context;
+							var updatedOn = _localTimeZoneName == PlanNSchedConstant.DefaultTimeZone
+							? demandAndCostData.UpdatedOn.Value.ToLocalTime()
+							: UtilityUI.ConvertUTCToLocal(demandAndCostData.UpdatedOn.Value, _localTimeZoneName);
+						}
+						<div class="text-center">@updatedOn</div>
+					</Template>
+				</GridColumn>
+				<GridColumn Width="140px" Id="rp-demand-cost-source" Field="DataSource" Title="DataSource">
+					<Template>
+						@{
+							var demandAndPriceData = (ProductDemandAndPrice)context;
+							<div class="text-center">@demandAndPriceData.DataSource</div>
+						}
+					</Template>
+				</GridColumn>
+				<GridColumn Width="140px" id="rp-demand-cost-comments" Field="Comments" Title="Comments">
+					<Template>
+						@{
+							var demandAndCostData = (ProductDemandAndPrice)context;
+						}
+						<input type="text" class="form-control" @bind="demandAndCostData.Comments" @oninput="(e) => ValidateCommentsLength(e, context)" disabled="@ReadOnlyFlag" />
+					</Template>
+				</GridColumn>
+			</GridColumns>
+			<NoDataTemplate>
+				<strong>@UIConstants.NoDataAvailable</strong>
+			</NoDataTemplate>
+		</TelerikGrid>
+	</div>
+</div>
+<div class="row text-end m-top">
+	<div class="col">
+		@{
+			var productDemandAndPriceItems = (ProductDemandAndPriceData);
+			if (!string.IsNullOrEmpty(RegionName) && !ReadOnlyFlag)
+			{
+				<AuthorizeView Policy="@(EditBackcastingPIMSPermissionName(RegionName))" Context="auth">
+					<TelerikButton Id="btn-save-demand-rp" ThemeColor="primary" ButtonType="@ButtonType.Submit"
+								   @onclick="(() => SaveProductDemandPriceAsync(productDemandAndPriceItems))">Save</TelerikButton>
+					<TelerikButton Id="btnCancelDemandRP" ButtonType="@ButtonType.Button"
+								   @onclick="(() => CancelProductDemandPriceAsync())">Cancel</TelerikButton>
+				</AuthorizeView>
+			}
+		}
+	</div>
+</div>
+<TelerikWindow Modal="true"
+			   @bind-Visible="@StatusPopup">
+	<WindowContent>
+		<div class="row p-3 fs-6">@StatusMessageContent</div>
+		<div class="text-center"><TelerikButton OnClick="Close">Ok</TelerikButton></div>
+	</WindowContent>
+</TelerikWindow>
+
+<MPC.PlanSched.UI.Shared.RefreshDialog @ref="_refreshModal" />
+<ExcelDownloadDialog @ref="_excelDialogRef" SelectedPriceTypeChanged="@OnPriceTypeChanged"
+					 OnConfirm="() => ExcelDownloadAsync()">
+</ExcelDownloadDialog>
+<MPC.PlanSched.UI.Shared.NotificationDialog @ref="_notificationModal" />

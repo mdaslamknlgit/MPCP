@@ -1,0 +1,324 @@
+@page "/inventorydp/{selectedRole}/{businessCaseId:int}/{isHistoricalPlan:bool}"
+@using MPC.PlanSched.Service
+@using Microsoft.Extensions.Logging;
+@using MPC.PlanSched.UI.Shared;
+@using System.Globalization;
+
+@inherits InventoryBaseComponent;
+
+@inject ILogger<InventoryDP> logger;
+
+<Spinner IsVisible="@IsLoading()" />
+
+<div class="row align-items-center">
+    <div class="col">
+        <div class="row">
+            <div class="col-auto">
+                <a class="fa fa-long-arrow-left text-decoration-none d-link" @onclick="() => NavigateToRegionDP(SelectedRole)"></a>
+            </div>
+            <div class="col font-600">@UIConstants.EditPlan @RegionTitle <br />(@PlanDescription) </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="col font-600">@DataLoadingStatusMessage</div>
+    </div>
+    <div class="col-auto">
+        <span class="font-14 font-700" id="region-updated-on">@PlanUpdatedOn</span>
+        <div>
+            <TelerikButton Id="inventory-dp-excel-download-btn" OnClick="@ExcelDownloadAsync" Size="small"><i class="fa-solid fa-download"></i> Download</TelerikButton>
+        </div>
+    </div>
+</div>
+<div class="row m-title-text m-space">
+    <div class="col-3 m-p">
+        <div class="font-700">@UIConstants.PeriodStartDate</div>
+        <div class="d-inline-block" id="period-start-date">@PeriodStartDate</div>
+        <a @onclick="() => NavigateToRegionDP(SelectedRole)" class="d-none">
+            <img src="../Images/Icon3.svg" width="30" height="20" class="m-r-10" />
+        </a>
+    </div>
+    <div class="col font-700">@UIConstants.PlanType @PlanType</div>
+    <div class="col-2">
+        <div class="font-700">Refinery</div>
+        <TelerikDropDownList Data="@RefineriesDD" TextField="Name" ValueField="Id" @bind-Value="SelectedRefineryValue" DefaultText="All" OnChange="@RefineryAndCommodityOnChanged"></TelerikDropDownList>
+    </div>
+    <div class="col-2">
+        <div class="font-700">Commodity Type</div>
+        <TelerikDropDownList Data="@CommodityTypes" TextField="Name" ValueField="Id" @bind-Value="SelectedCommodityValue" DefaultText="All" OnChange="@RefineryAndCommodityOnChanged"></TelerikDropDownList>
+    </div>
+</div>
+<div class="row m-0">
+    <div class="col p-0">
+        <CascadingValue Value="ReadOnlyFlag">
+            <TelerikGrid id="inventory-grid-dp" TItem="OpeningInventory" OnRead=@OnReadHandlerAsync @ref="@GridInventoryReference" Height="60vh"  Width="100%"
+                         Sortable="true" Resizable="true"
+                         Groupable="true" FilterMode="@GridFilterMode.FilterMenu"
+                         FilterMenuType="@FilterMenuType.CheckBoxList"
+                         ShowColumnMenu="true" Reorderable="true" Pageable="false"
+                         LoadGroupsOnDemand=@LoadGroupsOnDemand>
+                <GridToolBarTemplate>
+                    <TelerikButton Size="sm" ButtonType="@ButtonType.Submit"
+                                   @onclick="ToggleInventoryGridGroupByCollapseAsync"
+                                   Icon="@( LoadGroupsOnDemand ? SvgIcon.Plus : SvgIcon.Minus )"
+                                   Title="@( LoadGroupsOnDemand ? "Expand" : "Collapse" )">
+                        Expand/Collapse all groups
+                    </TelerikButton>
+                </GridToolBarTemplate>
+                <GridAggregates>
+                    <GridAggregate Field=@nameof(OpeningInventory.OverrideOpeningInventoryMinCalculated) Aggregate="@GridAggregateType.Sum" />
+                    <GridAggregate Field=@nameof(OpeningInventory.SystemOpeningInventoryMin) Aggregate="@GridAggregateType.Sum" />
+                    <GridAggregate Field=@nameof(OpeningInventory.OverrideOpeningInventoryMaxCalculated) Aggregate="@GridAggregateType.Sum" />
+                    <GridAggregate Field=@nameof(OpeningInventory.SystemOpeningInventoryMax) Aggregate="@GridAggregateType.Sum" />
+                    <GridAggregate Field=@nameof(OpeningInventory.SystemOpeningInventory) Aggregate="@GridAggregateType.Sum" />
+                    <GridAggregate Field=@nameof(OpeningInventory.OverrideOpeningInventoryCalculated) Aggregate="@GridAggregateType.Sum" />					
+                    <GridAggregate Field=@nameof(OpeningInventory.CommodityName) Aggregate="@GridAggregateType.Count" />
+                    <GridAggregate Field=@nameof(OpeningInventory.Location) Aggregate="@GridAggregateType.Count" />
+                </GridAggregates>
+                <GridSettings>
+                    <GridColumnMenuSettings Lockable="false">
+                        <GridColumnMenuChooser>
+                            <Template>
+                                @{
+                                    var columns = context.Columns;
+                                    foreach (var column in columns)
+                                    {
+                                        <GridColumnMenuChooserItem Title="@column.DisplayTitle" ColumnId="@column.Id" />
+                                    }
+                                }
+                            </Template>
+                        </GridColumnMenuChooser>
+                    </GridColumnMenuSettings>
+                </GridSettings>
+                <GridColumns>
+                    @if (RegionName != null)
+                    {
+						<GridColumn Width="140px" id="dp-inventory-commodity-name" Field="CommodityName" Title="Commodity Name & DPO Code">
+                            <FilterMenuTemplate Context="context">
+                                <Filter Data="@ProductOptions"
+                                        Field="@(nameof(OpeningInventory.CommodityName))" FilterDescriptor="@context.FilterDescriptor">
+                                </Filter>
+                            </FilterMenuTemplate>
+                            <Template>
+                                @{
+                                    <div>@((context as OpeningInventory).CommodityName)</div>
+                                    <div>@((context as OpeningInventory).PIMSCode)</div>
+                                }
+                            </Template>
+                            <GroupFooterTemplate>
+                                Sub Total
+                            </GroupFooterTemplate>
+                            <FooterTemplate>
+                                Total Records: @context.Count
+                            </FooterTemplate>
+                        </GridColumn>
+						<GridColumn Width="140px" id="dp-inventory-commodity-description" Field="CommodityDescription" Title="Commodity Description"></GridColumn>
+						<GridColumn Width="140px" id="dp-inventory-type-name" Field="TypeName" Title="Commodity Type"></GridColumn>
+						<GridColumn Width="140px" id="dp-is-contango-inventory" Field="ContangoInventory" Title="Contango Inventory" Visible='@((RegionName == @PlanNSchedConstant.NorthRegion))'></GridColumn>
+						<GridColumn Width="140px" id="dp-inventory-location" Field="Location" Title="Refinery">
+                            <FilterMenuTemplate Context="context">
+                                <Filter Data="@LocationOptions"
+                                        Field="@(nameof(OpeningInventory.Location))" FilterDescriptor="@context.FilterDescriptor">
+                                </Filter>
+                            </FilterMenuTemplate>
+                            <Template>
+                                @{
+                                    <div>@((context as OpeningInventory).Location)</div>
+                                    <div>@((context as OpeningInventory).Region)</div>
+                                }
+                            </Template>
+                        </GridColumn>
+						<GridColumn Width="140px" id="dp-inventory-location-description" Field="LocationDescription" Title="Refinery/Terminal Description"></GridColumn>
+                        <GridColumn Width="140px" Id="dp-inventory-override-type" Field="OverrideInventoryValueTypeName" Title="Opening Inventory Override Type">
+                            <Template>
+                                @{
+                                    var item = context as OpeningInventory;
+                                    <select disabled="@ReadOnlyFlag" class="@(ReadOnlyFlag ? "custom-input-readonly":"") form-control option-dropdown form-select" id="overrideType" name="overrideType" @onchange="@((ChangeEventArgs e) => OnInventoryTypeChanged(e, context))">
+                                        @foreach (var type in OverrideTypes)
+                                        {
+                                            <option value="@type.Name" selected="@(type.Name == item.OverrideInventoryValueTypeName ?  true : false)">@type.Name</option>
+                                        }
+                                    </select>
+                                    <span></span>
+                                }
+                            </Template>
+                        </GridColumn>
+						<GridColumn Width="140px" id="dp-inventory-input-value" Field="OverrideOpeningInventory" Title="Opening Inventory Input Value">
+                            <Template>
+                                <InventoryInput Context="context"
+                                                Precision=@InventoryQuantityDecimalPlaces
+                                                ValueFunc="InventoryData => InventoryData.OverrideOpeningInventory"
+                                                OnChange="((ChangeEventArgs e) => OnInventoryOverride(e, context))" />
+                            </Template>
+                        </GridColumn>
+						<GridColumn Width="140px" Id="dp-inventory-calculated" Field="OverrideOpeningInventoryCalculated" Title="Opening Inventory (MB)">
+                            <Template>
+                                @{
+                                    var openingInventoryData = (OpeningInventory)context;
+                                    openingInventoryData.ValidateValues();
+                                    <div class="@(openingInventoryData.SetCssClassIfSystemInventoryNotEqualToOverrideInventory()
+                                        + openingInventoryData.SetCssClassIfInventoryGreaterThanMaxOrLessThanMinInventory())">
+                                        Overridden: @openingInventoryData.DisplayInventoryQuantity(openingInventoryData.OverrideOpeningInventoryCalculated)
+                                    </div>
+                                    <div>System: @openingInventoryData.DisplayInventoryQuantity(openingInventoryData.SystemOpeningInventory)</div>
+                                    <span style="color:red">@openingInventoryData.CalculatedValidationMessage</span>
+                                }
+                            </Template>
+                            <GroupFooterTemplate>
+                                @context.Sum
+                            </GroupFooterTemplate>
+                            <FooterTemplate>
+                                <GridFooterSum AggregateResults="@context?.AggregateResults"
+                                               OverrideProperty=@nameof(OpeningInventory.OverrideOpeningInventoryCalculated)
+                                               InitialProperty=@nameof(OpeningInventory.SystemOpeningInventory)
+                                               PrecisionFormat="@UIConstants.InventoryQuantityDigitPrecisionFormat" />
+                            </FooterTemplate>
+                        </GridColumn>
+						<GridColumn Width="140px" Id="dp-inventory-min-input-value" Field="OverrideOpeningInventoryMin" Title="Min. Opening Inventory Input Value">
+                            <Template>
+                                <InventoryInput Context="context"
+                                                Precision=@InventoryQuantityDecimalPlaces
+                                                ValueFunc="InventoryData => InventoryData.OverrideOpeningInventoryMin"
+                                                OnChange="((ChangeEventArgs e) => OnMinInventoryOverride(e, context))" />
+                            </Template>
+                        </GridColumn>
+						<GridColumn Width="140px" id="dp-inventory-min-calculated" Field="OverrideOpeningInventoryMinCalculated" Title="Min. Opening Inventory (MB)">
+                            <Template>
+                                @{
+                                    var openingInventoryData = (OpeningInventory)context;
+                                    openingInventoryData.ValidateValues();
+                                    <div class="@(openingInventoryData.SetCssClassIfSystemMinInventoryNotEqualToOverrideMinInventory())">
+                                        Overridden: @openingInventoryData.DisplayInventoryQuantity(openingInventoryData.OverrideOpeningInventoryMinCalculated)
+                                    </div>
+                                    <div>System: @openingInventoryData.DisplayInventoryQuantity(openingInventoryData.SystemOpeningInventoryMin)</div>
+                                    <span style="color:red">@openingInventoryData.MinCalculatedValidationMessage</span>
+                                }
+                            </Template>
+                            <GroupFooterTemplate>
+                                @context.Sum
+                            </GroupFooterTemplate>
+                            <FooterTemplate>
+                                <GridFooterSum AggregateResults="@context?.AggregateResults"
+                                               OverrideProperty=@nameof(OpeningInventory.OverrideOpeningInventoryMinCalculated)
+                                               InitialProperty=@nameof(OpeningInventory.SystemOpeningInventoryMin)
+                                               PrecisionFormat="@UIConstants.InventoryQuantityDigitPrecisionFormat" />
+                            </FooterTemplate>
+                        </GridColumn>
+						<GridColumn Width="140px" id="dp-inventory-max-input-value" Field="OverrideOpeningInventoryMax" Title="Max. Opening Inventory Input Value">
+                            <Template>
+                                <InventoryInput Context="context"
+                                                Precision=@InventoryQuantityDecimalPlaces
+                                                ValueFunc="InventoryData => InventoryData.OverrideOpeningInventoryMax"
+                                                OnChange="((ChangeEventArgs e) => OnMaxInventoryOverride(e, context))" />
+                            </Template>
+                        </GridColumn>
+						<GridColumn Width="140px" id="dp-inventory-max-calculated" Field="OverrideOpeningInventoryMaxCalculated" Title="Max. Opening Inventory (MB)">
+                            <Template>
+                                @{
+                                    var openingInventoryData = (OpeningInventory)context;
+                                    openingInventoryData.ValidateValues();
+                                    <div class="@(@openingInventoryData.SetCssClassIfSystemMaxInventoryNotEqualToOverrideMaxInventory())">
+                                        Overridden: @openingInventoryData.DisplayInventoryQuantity(openingInventoryData.OverrideOpeningInventoryMaxCalculated)
+                                    </div>
+                                    <div>System: @openingInventoryData.DisplayInventoryQuantity(openingInventoryData.SystemOpeningInventoryMax)</div>
+                                    <span style="color:red">@openingInventoryData.MaxCalculatedValidationMessage</span>
+                                }
+                            </Template>
+                            <GroupFooterTemplate>
+                                @context.Sum
+                            </GroupFooterTemplate>
+                            <FooterTemplate>
+                                <GridFooterSum AggregateResults="@context?.AggregateResults"
+                                               OverrideProperty=@nameof(OpeningInventory.OverrideOpeningInventoryMaxCalculated)
+                                               InitialProperty=@nameof(OpeningInventory.SystemOpeningInventoryMax)
+                                               PrecisionFormat="@UIConstants.InventoryQuantityDigitPrecisionFormat" />
+                            </FooterTemplate>
+                        </GridColumn>
+						<GridColumn Width="140px" id="dp-inventory-uom" Field="InventoryUOM" Title="UOM"></GridColumn>
+						<GridColumn Width="140px" id="dp-inventory-ocost" Field="OCostOverride" Title="OCost">
+                            <Template>
+                                @{
+                                    var item = context as OpeningInventory;
+                                    <div class="text-center">@item.DisplayInventoryPrice(item.OCostOverride)</div>
+                                }
+                            </Template>
+                        </GridColumn>
+						<GridColumn Width="140px" id="dp-inventory-ocostuom" Field="OCostUOM" Title="OCost UOM"></GridColumn>
+						<GridColumn Width="140px" id="dp-inventory-hcostuom" Field="HCost" Title="HCost">
+<Template>
+                                @{
+                                    var item = context as OpeningInventory;
+                                    <div class="text-center">@item.DisplayInventoryPrice(item.HCost)</div>
+                                }
+                            </Template>
+						</GridColumn>
+						<GridColumn Width="140px" id="dp-inventory-scostuom" Field="SCost" Title="SCost">
+<Template>
+                                @{
+                                    var item = context as OpeningInventory;
+                                    <div class="text-center">@item.DisplayInventoryPrice(item.SCost)</div>
+                                }
+                            </Template>
+						</GridColumn>
+						<GridColumn Width="140px" id="dp-inventory-modified-flag" Field="IsOverridden" Title="Data Override">
+                            <Template>
+                                @{
+                                    var inventoryData = (OpeningInventory)context;
+                                    inventoryData.SetOverrideFlag();
+                                    <div class="text-center">@inventoryData.IsOverridden</div>
+                                }
+                            </Template>
+                        </GridColumn>
+						<GridColumn Width="140px" id="dp-inventory-target" Field="Target" Title="Target">
+                            <Template>
+                                <InventoryPriceInput Context="context"
+                                                Precision=@InventoryQuantityDecimalPlaces
+                                                       ValueFunc="InventoryData => InventoryData.Target"
+                                                OnChange="@(e => OnOverrideValue(e, context, "Target"))" />
+                            </Template>
+                        </GridColumn>
+						<GridColumn Width="140px" id="dp-inventory-commodity-TCost" Field="TCost" Title="TCost">
+                            <Template>
+                                <InventoryPriceInput Context="context"
+                                                Precision=@InventoryQuantityDecimalPlaces
+                                                       ValueFunc="InventoryData => InventoryData.TCost"
+                                                OnChange="@(e => OnOverrideValue(e, context, "TCost"))" />
+                            </Template>
+                        </GridColumn>
+						<GridColumn Width="140px" id="dp-inventory-Safety" Field="Safety" Title="Safety">
+                            <Template>
+                                <InventoryPriceInput Context="context"
+                                                Precision=@InventoryQuantityDecimalPlaces
+                                                ValueFunc="InventoryData => InventoryData.Safety"
+                                                OnChange="@(e => OnOverrideValue(e, context, "Safety"))" />
+                            </Template>
+                        </GridColumn>
+                    }
+                </GridColumns>
+                <NoDataTemplate>
+                    <strong>@UIConstants.NoDataAvailable</strong>
+                </NoDataTemplate>
+            </TelerikGrid>
+        </CascadingValue>
+    </div>
+</div>
+<div class="row text-end m-space m-top">
+    <div class="col">
+        @{
+            var openingInventoryItems = (OpeningInventories);
+            if (!string.IsNullOrEmpty(RegionName) && !ReadOnlyFlag)
+            {
+                <AuthorizeView Policy="@(EditDpoPermissionName(RegionName))" Context="auth">
+                    <TelerikButton Id="btn-save-inventory-dp" ThemeColor="primary" ButtonType="@ButtonType.Submit"
+                                   @onclick="(() => SaveOpeningInventoryAsync(openingInventoryItems))">Save</TelerikButton>
+                    <TelerikButton Id="btn-cancel-inventory-dp" ButtonType="@ButtonType.Button" @onclick="(() => CancelInventoryAsync())">Cancel</TelerikButton>
+                </AuthorizeView>
+            }
+        }
+    </div>
+</div>
+<TelerikWindow Modal="true" @bind-Visible="@StatusPopup">
+    <WindowContent>
+        <div class="row p-3 fs-6">@StatusMessageContent</div>
+        <div class="text-center"><TelerikButton OnClick="Close">Ok</TelerikButton></div>
+    </WindowContent>
+</TelerikWindow>

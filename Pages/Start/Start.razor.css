@@ -1,0 +1,45 @@
+.start-layout {
+    min-height:50vh;
+}
+
+    .start-layout a {
+        font-family: opensans-bold;
+        font-size: 18px;
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+        .start-layout a:hover {
+            color: #113c85;
+        }
+
+
+    .start-layout h5 {
+        font-family: opensans-bold;
+        font-size: 22px;
+        color: black;
+        text-decoration: none;
+    }
+
+.transparent-box {
+    background: rgba(255, 255, 255, .65);
+    border-radius: 8px;
+    box-shadow: 0 8px 32px 0 rgba(0,0,0,.2);
+    position: relative;
+}
+
+    .transparent-box > div:nth-child(2) {
+        border-bottom: 3px solid #DD1746;
+    }
+
+    .transparent-box > div:last-child {
+        padding: 1.5rem 4rem !important;
+    }
+
+    .transparent-box > div:last-child > div > div {
+        border-right: 1px solid #DD1746;
+    }
+
+    .transparent-box > div:last-child > div > div:last-child {
+        border: 0;
+    }

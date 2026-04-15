@@ -1,0 +1,167 @@
+@page "/{selectedRole}/plans/new/{domainNamespaceId:int}"
+@using MPC.PlanSched.Service
+@using MPC.PlanSched.Shared.Service.Schema;
+@inherits CommonBase
+
+<Spinner IsVisible="@IsLoading()" />
+<div class="row align-items-center m-space">
+    <div class="col-auto">
+        <a id="cancelPeriodButton" class="fa fa-long-arrow-left text-decoration-none custom-link" @onclick="@CancelPeriod"></a>
+    </div>
+    <div class="col font-600 font-26">Define Periods & Select Pricing Effective Date For @RegionTitle Plan</div>
+</div>
+<div class="row m-space align-items-center">
+    <div class="col-3 font-600 font-18">Plan Description:</div>
+    <div class="col-3">
+        <TelerikTextBox Value="@_description"
+                        ValueChanged="OnDescriptionChanged"
+                        Size="md" />
+    </div>
+    @if (!ConfigurationUI.IsMidtermEnabled)
+    {
+        <div class="col-3 font-600 font-18">@UIConstants.PlanType</div>
+        <div class="col-3">
+            <TelerikDropDownList id="plan-types" Data="@RegionModel.PlanTypes" TextField="Name" ValueField="Name"
+                                 @bind-Value="RegionModel.PlanType">
+                <DropDownListSettings>
+                    <DropDownListPopupSettings Height="auto" />
+                </DropDownListSettings>
+            </TelerikDropDownList>
+        </div>
+    }
+</div>
+<div class="row m-space align-items-center">
+    <div class="col-3 font-600 font-18">Select Price Effective Date:</div>
+    <div class="col-3">
+        <TelerikDatePicker @bind-Value="@PriceEffectiveDate"
+                           Format="MM/dd/yyyy"
+                           Max="@DateTime.UtcNow">
+            <DatePickerFormatPlaceholder Month="MM" Day="dd" Year="yyyy" />
+        </TelerikDatePicker>
+    </div>
+    @{
+        if (!string.IsNullOrEmpty(RegionName) && DomainNamespaceName.Contains(PlanNSchedConstant.Pims,StringComparison.CurrentCultureIgnoreCase))
+        {
+            <AuthorizeView Policy="@EditPimsPermissionName(RegionName)" Context="auth">
+                <div class="col-3 font-600 font-18">Select @UIConstants.SupplyEffectiveDate</div>
+                <div class="col-3">
+                    <TelerikDatePicker @bind-Value="@SupplyEffectiveDate"
+                                       Format="MM/dd/yyyy"
+                                       Max="@DateTime.Now">
+                        <DatePickerFormatPlaceholder Month="MM" Day="dd" Year="yyyy" />
+                    </TelerikDatePicker>
+                </div>
+            </AuthorizeView>
+        }
+    }
+</div>
+<div class="row m-space">
+    <div class="col-12 font-600 font-18 m-space">Define Period:</div>
+    <div class="col-6 period-table">
+        <TelerikCard>
+            <CardHeader>
+                <CardTitle Class="row font-700 text-center">
+                    <div class="col-1">Period</div>
+                    <div class="col-5">Start Date</div>
+                    <div class="col-5">End Date</div>
+                    <div class="col-1"></div>
+                </CardTitle>
+            </CardHeader>
+            <CardBody Class="row">
+                @foreach (var Periods in Periods.Select((value, i) => new { i, value }))
+                {
+                    <div class="col-1 text-center">@(Periods.i + 1)</div>
+                    <div class="col-5">
+                        @if (Periods.i == 0)
+                        {
+                            <TelerikDatePicker Format="MM/dd/yyyy" @bind-Value="Periods.value.DateTimeRange.FromDateTime">
+                                <DatePickerFormatPlaceholder Month="MM" Day="dd" Year="yyyy" />
+                            </TelerikDatePicker>
+                        }
+                        @if (Periods.i > 0)
+                        {
+                            <TelerikDatePicker Format="MM/dd/yyyy"
+                                               @bind-Value="Periods.value.DateTimeRange.FromDateTime"
+                                               Enabled="false">
+                                <DatePickerFormatPlaceholder Month="MM" Day="dd" Year="yyyy" />
+                            </TelerikDatePicker>
+                        }
+                    </div>
+                    <div class="col-5">
+                        <TelerikDatePicker Format="MM/dd/yyyy"
+                                           @ref="DatePickerRef"
+                                           OnOpen="() => RefreshEndDate(Periods.i)"
+                                           @bind-Value="Periods.value.DateTimeRange.ToDateTime"
+                                           OnClose="() => ChangeStartDate(Periods.i)"
+                                           Min="@GetMinToDate(Periods.i)">
+                            <DatePickerFormatPlaceholder Month="MM" Day="dd" Year="yyyy" />
+                        </TelerikDatePicker>
+                    </div>
+                    <div class="col-1 text-center">
+                        @if (Periods.i > 0)
+                        {
+                            <div @onclick="(()=>DeletePeriod(Periods.i))"><span class="fa fa-trash-can font-20"></span></div>
+                        }
+                    </div>
+                }
+            </CardBody>
+        </TelerikCard>
+    </div>
+    <div class="col-6 period-table">
+        <TelerikCard>
+            <CardHeader>
+                <CardTitle>
+                    <div class="text-center">
+                        <i class="fas fa-clipboard-list" style="padding-right:5px" />
+                        <strong>Adding Period Instructions</strong>
+                    </div>
+                </CardTitle>
+            </CardHeader>
+            <CardBody>
+                <div>
+                    @if (Rules == null)
+                    {
+                        <p>No Data Available</p>
+                    }
+                    else
+                    {
+                        foreach (var ruleItem in Rules)
+                        {
+                            <ul class="m-rule">
+                                <li>
+                                    @ruleItem.PeriodRule
+                                </li>
+                            </ul>
+                        }
+                    }
+                </div>
+            </CardBody>
+        </TelerikCard>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12 m-space">
+        <div class="font-20 custom-link">
+            <span class="fa fa-plus cursor-pointer" @onclick="@AddPeriod"></span><span class="cursor-pointer" @onclick="@AddPeriod">&nbsp; Add another period</span>
+        </div>
+    </div>
+    <div class="col-12 m-space d-none">
+        <div id="uiErrorMessage"><span class="fa fa-solid fa-circle-exclamation"></span><span>&nbsp; You have reached the maximum number of periods you can plan for.</span></div>
+    </div>
+    <div class="col-12">
+        <TelerikButton id="cancel-period-btn" OnClick="CancelPeriod">Cancel</TelerikButton>
+        <TelerikButton ThemeColor="primary" OnClick="SubmitPeriod">Continue</TelerikButton>
+    </div>
+</div>
+<div class="" role="alert">
+    @_validationMessage
+</div>
+<TelerikWindow Modal="true" @bind-Visible="@StatusPopup">
+    <WindowContent>
+        <div class="row p-3 fs-6">@StatusMessageContent</div>
+        <div class="text-center"><TelerikButton OnClick="Close">Ok</TelerikButton></div>
+    </WindowContent>
+</TelerikWindow>
+<Dialog @ref="_dialog" Title="Confirmation!" OnConfirm="@(() => SaveNewPlanAsync())">
+    Historical Date has been selected for forecasted data, do you wish to proceed?
+</Dialog>

@@ -1,0 +1,160 @@
+@page "/productdemandpricerp/{selectedRole}/{businessCaseId:int}/{isHistoricalPlan:bool}"
+@using MPC.PlanSched.UI.ViewModel
+@using Microsoft.Extensions.Logging;
+@using MPC.PlanSched.Service;
+@using MPC.PlanSched.Shared.Service.Schema;
+@using PlanSched.Shared.Common;
+@using System.Globalization;
+@using Microsoft.FeatureManagement
+
+@inject ILogger<ProductDemandPriceRP> logger;
+@inject IFeatureManager featureManager
+@inherits ProductDemandPriceBaseComponent
+
+<Spinner IsVisible="@IsLoading()" />
+
+<div class="row align-items-center">
+    <div class="col">
+        <div class="row">
+            <div class="col-auto">
+                <a class="fa fa-long-arrow-left text-decoration-none d-link" @onclick="() => NavigateToRegionRP(SelectedRole)"></a>
+            </div>
+            <div class="col font-600">@UIConstants.EditPlan @RegionTitle <br />(@PlanDescription) </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="col font-600">@DataLoadingStatusMessage</div>
+    </div>
+    <div class="col-auto">
+        <span class="font-14 font-700" id="region-updated-on">@PlanUpdatedOn</span>
+        <div>
+            <TelerikButton Id="demand-rp-excel-download-btn" OnClick="@ExcelDownloadAsync" Size="small"><i class="fa-solid fa-download"></i> Download</TelerikButton>
+        </div>
+    </div>
+</div>
+<div class="row align-items-center">
+    <div class="col">
+        <span class="font-14 font-700">@UIConstants.PriceEffectiveDate @PriceEffectiveDate</span>
+    </div>
+</div>
+<div class="row align-items-center m-title-text m-space">
+    <div class="col-auto">
+        <div class="font-700">@UIConstants.PlanningPeriod</div>
+    </div>
+    <div class="col-3">
+        <TelerikDropDownList id="ddl-period" Data="@Periods" TextField="PeriodDisplayName" ValueField="PeriodID"
+                             Value="@SelectedPeriodId" ValueChanged="@((int v) => GetProductDemandPricesOnPeriodSelectionChangedAsync(v))">
+            <DropDownListSettings>
+                <DropDownListPopupSettings Height="auto" />
+            </DropDownListSettings>
+            <HeaderTemplate>
+                <strong>@UIConstants.SelectPeriod</strong>
+            </HeaderTemplate>
+            <NoDataTemplate>
+                <div class="no-data-template">
+                    <TelerikFontIcon Class="k-icon k-icon-lg" Icon="@FontIcon.FilesError"></TelerikFontIcon>
+                    <p>@UIConstants.NoItemsAvailable</p>
+                </div>
+            </NoDataTemplate>
+        </TelerikDropDownList>
+    </div>
+    @if (ConfigurationUI.IsMidtermEnabled)
+    {
+        <div class="col"></div>
+    }
+    else
+    {
+        <div class="col font-700">@UIConstants.PlanType @PlanType</div>
+    }
+    <div class="col-auto">
+        <div class="font-700">@UIConstants.SortBy</div>
+    </div>
+    <div class="col-5">
+        <TelerikButtonGroup SelectionMode="@ButtonGroupSelectionMode.Single">
+            <ButtonGroupToggleButton @bind-Selected="@NoneSelected" @onclick="() => SortDemandPricesBy(x => x.Id)">None</ButtonGroupToggleButton>
+            <ButtonGroupToggleButton @onclick="() => SortDemandPricesBy(x => x.LocationName)">Market</ButtonGroupToggleButton>
+            <ButtonGroupToggleButton @onclick="() => SortDemandPricesBy(x => x.ProductName)">Product</ButtonGroupToggleButton>
+        </TelerikButtonGroup>
+    </div>
+</div>
+<div class="row m-0">
+    <div class="col p-0">
+         @if (IsReady)
+        {
+            <ProductDemandPriceRPGrid IsReady=@IsReady @ref="RPDemandReference"  ProductDemandAndPriceData=@ProductDemandAndPriceSourceData ReadOnlyFlag=@ReadOnlyFlag IsHistoricalPlan="@IsHistoricalPlan" IsTierVisible=@IsTierVisible />
+        }
+    </div>
+</div>
+<div class="row text-end m-top">
+    <div class="col">
+        @{
+            var productDemandAndPriceItems = (ProductDemandAndPriceData);
+            if (!string.IsNullOrEmpty(RegionName) && !ReadOnlyFlag)
+            {
+                <AuthorizeView Policy="@(EditPimsPermissionName(RegionName))" Context="auth">
+                    <TelerikButton Id="btn-save-demand-rp" ThemeColor="primary" ButtonType="@ButtonType.Submit"
+                                   @onclick="(() => SaveProductDemandPriceAsync(productDemandAndPriceItems))">Save</TelerikButton>
+                    <TelerikButton Id="btnCancelDemandRP" ButtonType="@ButtonType.Button"
+                                   @onclick="(() => CancelProductDemandPriceAsync())">Cancel</TelerikButton>
+                </AuthorizeView>
+            }
+        }
+    </div>
+</div>
+@if (featureManager.IsEnabledAsync(FeatureFlags.ManualData).Result && IsReady)
+{
+    <div class="row m-0 mt-4">
+        <div class="col p-0">
+            <span class="font-700 k-font-weight-bold">Manual Regional Demand</span>
+            <ProductDemandPriceRPGrid IsReady=@IsReady @ref="RPRegionalDemandReference" ProductDemandAndPriceData=@ProductDemandAndPriceRegionalData ReadOnlyFlag=@ReadOnlyFlag IsHistoricalPlan="@IsHistoricalPlan" IsDataInputDateVisible=true IsOverrideVisible=false IsTierVisible=@IsTierVisible />
+        </div>
+    </div>
+    <div class="row m-0 mt-4">
+        <div class="col p-0">
+            <span class="font-700 k-font-weight-bold">Manual Refinery Demand</span>
+            <ProductDemandPriceRPGrid IsReady=@IsReady @ref="RPRefineryDemandReference" ProductDemandAndPriceData=@ProductDemandAndPriceRefineryData ReadOnlyFlag=@ReadOnlyFlag IsHistoricalPlan="@IsHistoricalPlan" IsDataInputDateVisible=true IsOverrideVisible=false IsTierVisible=@IsTierVisible />
+        </div>
+    </div>
+}
+
+<div class="row m-top" style="position: relative">
+    @if (IsReady)
+    {
+        <Spinner IsVisible="@IsLoading()" />
+        <div class="col">
+            <TelerikChart Height="80vh" Width="100%" Transitions="false">
+                <ChartTitle Text="Total Min. Demand Volume By Product Across Periods"></ChartTitle>
+                <ChartTooltip Visible="true"></ChartTooltip>
+                <ChartLegend Position="ChartLegendPosition.Bottom"></ChartLegend>
+
+                <ChartSeriesItems>
+                    @foreach (var item in TotalMinDemandLineChartSeriesVisible)
+                    {
+                        <ChartSeries Type="ChartSeriesType.Line" Name="@item.name" Data="@item.data">
+                        </ChartSeries>
+                    }
+                </ChartSeriesItems>
+
+                <ChartCategoryAxes>
+                    <ChartCategoryAxis Categories="@TotalMinDemandLineChartXAxisLabels">
+                        <ChartCategoryAxisTitle Text="Period"></ChartCategoryAxisTitle>
+                    </ChartCategoryAxis>
+                </ChartCategoryAxes>
+
+                <ChartValueAxes>
+                    <ChartValueAxis>
+                        <ChartValueAxisTitle Text="Minimum Demand Volume Per Day"></ChartValueAxisTitle>
+                        <ChartValueAxisLabels Template="#=value#MB"></ChartValueAxisLabels>
+                    </ChartValueAxis>
+                </ChartValueAxes>
+            </TelerikChart>
+        </div>
+    }
+</div>
+<TelerikWindow Modal="true"
+               @bind-Visible="@StatusPopup">
+    <WindowContent>
+        <div class="row p-3 fs-6">@StatusMessageContent</div>
+        <div class="text-center"><TelerikButton OnClick="Close">Ok</TelerikButton></div>
+    </WindowContent>
+</TelerikWindow>

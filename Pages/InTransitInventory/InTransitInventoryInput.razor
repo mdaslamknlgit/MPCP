@@ -1,0 +1,22 @@
+<input class="@(IsReadOnly ? "d-input-readonly":"") text-center"
+       readonly="@IsReadOnly"
+       type="number"
+       value="@(ValueFunc.Invoke(rowItem)?.ToString(numericFormat) ?? "")" step="@step"
+       @onchange="@OnChange" />
+
+@code {
+    [Parameter]
+    public object Context { get; set; } = default!;
+    [CascadingParameter]
+    public bool IsReadOnly { get; set; }
+    [Parameter]
+    public Func<Model.InTransitInventory, decimal?> ValueFunc { get; set; } = default!;
+    [Parameter]
+    public EventCallback<ChangeEventArgs> OnChange { get; set; } = default!;
+    [Parameter]
+    public int Precision { get; set; } = default!;
+
+    private Model.InTransitInventory rowItem => (Model.InTransitInventory)Context;
+    private string numericFormat => "0.".PadRight(Precision + 2, '0');
+    private string step => $"0.{"".PadRight(Precision - 1, '0')}1";
+}

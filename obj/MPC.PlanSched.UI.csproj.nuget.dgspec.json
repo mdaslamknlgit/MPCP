@@ -1,0 +1,998 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.UI\\MPC.PlanSched.UI.csproj": {}
+  },
+  "projects": {
+    "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Common\\MPC.PlanSched.Shared.Common.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Common\\MPC.PlanSched.Shared.Common.csproj",
+        "projectName": "MPC.PlanSched.Shared.Common",
+        "projectPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Common\\MPC.PlanSched.Shared.Common.csproj",
+        "packagesPath": "C:\\Users\\Q7W3\\.nuget\\packages\\",
+        "outputPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Common\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Q7W3\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {},
+          "https://nuget.mgroupnet.com/nuget": {},
+          "https://pkgs.dev.azure.com/marathonpetroleum/_packaging/Telerik_Container_Feed%40Local/nuget/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Service.Schema\\MPC.PlanSched.Shared.Service.Schema.csproj": {
+                "projectPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Service.Schema\\MPC.PlanSched.Shared.Service.Schema.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Ardalis.GuardClauses": {
+              "target": "Package",
+              "version": "[5.0.0, )"
+            },
+            "Azure.Identity": {
+              "target": "Package",
+              "version": "[1.11.4, )"
+            },
+            "Azure.Messaging.ServiceBus": {
+              "target": "Package",
+              "version": "[7.13.1, )"
+            },
+            "DistributedLock.Azure": {
+              "target": "Package",
+              "version": "[1.0.2, )"
+            },
+            "DistributedLock.Core": {
+              "target": "Package",
+              "version": "[1.0.8, )"
+            },
+            "Microsoft.AspNetCore.Mvc.Core": {
+              "target": "Package",
+              "version": "[2.2.5, )"
+            },
+            "Microsoft.Extensions.Caching.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.Http": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.3, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.312/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Notification\\MPC.PlanSched.Shared.Notification.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Notification\\MPC.PlanSched.Shared.Notification.csproj",
+        "projectName": "MPC.PlanSched.Shared.Notification",
+        "projectPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Notification\\MPC.PlanSched.Shared.Notification.csproj",
+        "packagesPath": "C:\\Users\\Q7W3\\.nuget\\packages\\",
+        "outputPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Notification\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Q7W3\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {},
+          "https://nuget.mgroupnet.com/nuget": {},
+          "https://pkgs.dev.azure.com/marathonpetroleum/_packaging/Telerik_Container_Feed%40Local/nuget/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Common\\MPC.PlanSched.Shared.Common.csproj": {
+                "projectPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Common\\MPC.PlanSched.Shared.Common.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Azure.Messaging.ServiceBus": {
+              "target": "Package",
+              "version": "[7.13.1, )"
+            },
+            "Microsoft.Extensions.Http": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.312/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Semantic\\MPC.PlanSched.Shared.Semantic.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Semantic\\MPC.PlanSched.Shared.Semantic.csproj",
+        "projectName": "MPC.PlanSched.Shared.Semantic",
+        "projectPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Semantic\\MPC.PlanSched.Shared.Semantic.csproj",
+        "packagesPath": "C:\\Users\\Q7W3\\.nuget\\packages\\",
+        "outputPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Semantic\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Q7W3\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {},
+          "https://nuget.mgroupnet.com/nuget": {},
+          "https://pkgs.dev.azure.com/marathonpetroleum/_packaging/Telerik_Container_Feed%40Local/nuget/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Common\\MPC.PlanSched.Shared.Common.csproj": {
+                "projectPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Common\\MPC.PlanSched.Shared.Common.csproj"
+              },
+              "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Notification\\MPC.PlanSched.Shared.Notification.csproj": {
+                "projectPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Notification\\MPC.PlanSched.Shared.Notification.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.Extensions.Configuration.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.Http": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.312/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Service.Schema\\MPC.PlanSched.Shared.Service.Schema.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Service.Schema\\MPC.PlanSched.Shared.Service.Schema.csproj",
+        "projectName": "MPC.PlanSched.Shared.Service.Schema",
+        "projectPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Service.Schema\\MPC.PlanSched.Shared.Service.Schema.csproj",
+        "packagesPath": "C:\\Users\\Q7W3\\.nuget\\packages\\",
+        "outputPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Service.Schema\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Q7W3\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {},
+          "https://nuget.mgroupnet.com/nuget": {},
+          "https://pkgs.dev.azure.com/marathonpetroleum/_packaging/Telerik_Container_Feed%40Local/nuget/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.312/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.Common\\MPC.PlanSched.Common.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.Common\\MPC.PlanSched.Common.csproj",
+        "projectName": "MPC.PlanSched.Common",
+        "projectPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.Common\\MPC.PlanSched.Common.csproj",
+        "packagesPath": "C:\\Users\\Q7W3\\.nuget\\packages\\",
+        "outputPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.Common\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Q7W3\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {},
+          "https://nuget.mgroupnet.com/nuget": {},
+          "https://pkgs.dev.azure.com/marathonpetroleum/_packaging/Telerik_Container_Feed%40Local/nuget/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Common\\MPC.PlanSched.Shared.Common.csproj": {
+                "projectPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Common\\MPC.PlanSched.Shared.Common.csproj"
+              },
+              "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Service.Schema\\MPC.PlanSched.Shared.Service.Schema.csproj": {
+                "projectPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Service.Schema\\MPC.PlanSched.Shared.Service.Schema.csproj"
+              },
+              "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.Model\\MPC.PlanSched.Model.csproj": {
+                "projectPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.Model\\MPC.PlanSched.Model.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.ApplicationInsights.AspNetCore": {
+              "target": "Package",
+              "version": "[2.21.0, )"
+            },
+            "Microsoft.AspNetCore.Components": {
+              "target": "Package",
+              "version": "[8.0.11, )"
+            },
+            "Microsoft.AspNetCore.Components.Forms": {
+              "target": "Package",
+              "version": "[8.0.11, )"
+            },
+            "Microsoft.Extensions.Configuration": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.Configuration.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.Configuration.Binder": {
+              "target": "Package",
+              "version": "[8.0.2, )"
+            },
+            "Microsoft.Extensions.Configuration.Json": {
+              "target": "Package",
+              "version": "[8.0.1, )"
+            },
+            "Microsoft.Extensions.Http": {
+              "target": "Package",
+              "version": "[8.0.1, )"
+            },
+            "Microsoft.JSInterop": {
+              "target": "Package",
+              "version": "[8.0.11, )"
+            },
+            "Microsoft.Win32": {
+              "target": "Package",
+              "version": "[2.0.1, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.3, )"
+            },
+            "System.Drawing.Common": {
+              "target": "Package",
+              "version": "[9.0.3, )"
+            },
+            "Telerik.DataSource": {
+              "target": "Package",
+              "version": "[3.0.0, )"
+            },
+            "Telerik.Documents.Core": {
+              "target": "Package",
+              "version": "[2023.3.1106, )"
+            },
+            "Telerik.Documents.Spreadsheet": {
+              "target": "Package",
+              "version": "[2023.3.1106, )"
+            },
+            "Telerik.Documents.Spreadsheet.FormatProviders.OpenXml": {
+              "target": "Package",
+              "version": "[2023.3.1106, )"
+            },
+            "Telerik.Documents.SpreadsheetStreaming": {
+              "target": "Package",
+              "version": "[2023.3.1106, )"
+            },
+            "Telerik.Pivot.Core": {
+              "target": "Package",
+              "version": "[0.1.0, )"
+            },
+            "Telerik.Pivot.DataProviders.Xmla": {
+              "target": "Package",
+              "version": "[0.1.0, )"
+            },
+            "Telerik.Recurrence": {
+              "target": "Package",
+              "version": "[0.2.1, )"
+            },
+            "Telerik.UI.for.Blazor": {
+              "target": "Package",
+              "version": "[5.0.0, )"
+            },
+            "Telerik.Zip": {
+              "target": "Package",
+              "version": "[2023.3.1106, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.312/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.Model\\MPC.PlanSched.Model.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.Model\\MPC.PlanSched.Model.csproj",
+        "projectName": "MPC.PlanSched.Model",
+        "projectPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.Model\\MPC.PlanSched.Model.csproj",
+        "packagesPath": "C:\\Users\\Q7W3\\.nuget\\packages\\",
+        "outputPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.Model\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Q7W3\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {},
+          "https://nuget.mgroupnet.com/nuget": {},
+          "https://pkgs.dev.azure.com/marathonpetroleum/_packaging/Telerik_Container_Feed%40Local/nuget/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Common\\MPC.PlanSched.Shared.Common.csproj": {
+                "projectPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Common\\MPC.PlanSched.Shared.Common.csproj"
+              },
+              "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Notification\\MPC.PlanSched.Shared.Notification.csproj": {
+                "projectPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Notification\\MPC.PlanSched.Shared.Notification.csproj"
+              },
+              "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Semantic\\MPC.PlanSched.Shared.Semantic.csproj": {
+                "projectPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Semantic\\MPC.PlanSched.Shared.Semantic.csproj"
+              },
+              "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Service.Schema\\MPC.PlanSched.Shared.Service.Schema.csproj": {
+                "projectPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Service.Schema\\MPC.PlanSched.Shared.Service.Schema.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Mpc.Helios.Common.Exceptions": {
+              "target": "Package",
+              "version": "[1.0.2, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.312/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.ORM\\MPC.PlanSched.ORM.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.ORM\\MPC.PlanSched.ORM.csproj",
+        "projectName": "MPC.PlanSched.ORM",
+        "projectPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.ORM\\MPC.PlanSched.ORM.csproj",
+        "packagesPath": "C:\\Users\\Q7W3\\.nuget\\packages\\",
+        "outputPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.ORM\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Q7W3\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {},
+          "https://nuget.mgroupnet.com/nuget": {},
+          "https://pkgs.dev.azure.com/marathonpetroleum/_packaging/Telerik_Container_Feed%40Local/nuget/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.11, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.11, )"
+            },
+            "Microsoft.EntityFrameworkCore.Relational": {
+              "target": "Package",
+              "version": "[8.0.11, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[8.0.11, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.11, )"
+            },
+            "Mpc.Helios.Common.Exceptions": {
+              "target": "Package",
+              "version": "[1.0.2, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.312/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.Service\\MPC.PlanSched.Service.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.Service\\MPC.PlanSched.Service.csproj",
+        "projectName": "MPC.PlanSched.Service",
+        "projectPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.Service\\MPC.PlanSched.Service.csproj",
+        "packagesPath": "C:\\Users\\Q7W3\\.nuget\\packages\\",
+        "outputPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.Service\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Q7W3\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {},
+          "https://nuget.mgroupnet.com/nuget": {},
+          "https://pkgs.dev.azure.com/marathonpetroleum/_packaging/Telerik_Container_Feed%40Local/nuget/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Notification\\MPC.PlanSched.Shared.Notification.csproj": {
+                "projectPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Notification\\MPC.PlanSched.Shared.Notification.csproj"
+              },
+              "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Semantic\\MPC.PlanSched.Shared.Semantic.csproj": {
+                "projectPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Semantic\\MPC.PlanSched.Shared.Semantic.csproj"
+              },
+              "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Service.Schema\\MPC.PlanSched.Shared.Service.Schema.csproj": {
+                "projectPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Service.Schema\\MPC.PlanSched.Shared.Service.Schema.csproj"
+              },
+              "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.Model\\MPC.PlanSched.Model.csproj": {
+                "projectPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.Model\\MPC.PlanSched.Model.csproj"
+              },
+              "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.ORM\\MPC.PlanSched.ORM.csproj": {
+                "projectPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.ORM\\MPC.PlanSched.ORM.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Azure.Messaging.ServiceBus": {
+              "target": "Package",
+              "version": "[7.16.1, )"
+            },
+            "Microsoft.FeatureManagement": {
+              "target": "Package",
+              "version": "[3.0.0, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.3, )"
+            },
+            "Polly": {
+              "target": "Package",
+              "version": "[8.1.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.312/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.UI\\MPC.PlanSched.UI.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.UI\\MPC.PlanSched.UI.csproj",
+        "projectName": "MPC.PlanSched.UI",
+        "projectPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.UI\\MPC.PlanSched.UI.csproj",
+        "packagesPath": "C:\\Users\\Q7W3\\.nuget\\packages\\",
+        "outputPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.UI\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Q7W3\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {},
+          "https://nuget.mgroupnet.com/nuget": {},
+          "https://pkgs.dev.azure.com/marathonpetroleum/_packaging/Telerik_Container_Feed%40Local/nuget/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Common\\MPC.PlanSched.Shared.Common.csproj": {
+                "projectPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Common\\MPC.PlanSched.Shared.Common.csproj"
+              },
+              "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Service.Schema\\MPC.PlanSched.Shared.Service.Schema.csproj": {
+                "projectPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched.Shared\\MPC.PlanSched.Shared.Service.Schema\\MPC.PlanSched.Shared.Service.Schema.csproj"
+              },
+              "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.Common\\MPC.PlanSched.Common.csproj": {
+                "projectPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.Common\\MPC.PlanSched.Common.csproj"
+              },
+              "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.Model\\MPC.PlanSched.Model.csproj": {
+                "projectPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.Model\\MPC.PlanSched.Model.csproj"
+              },
+              "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.ORM\\MPC.PlanSched.ORM.csproj": {
+                "projectPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.ORM\\MPC.PlanSched.ORM.csproj"
+              },
+              "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.Service\\MPC.PlanSched.Service.csproj": {
+                "projectPath": "C:\\MyProjects\\RegionalOptimization\\MPC.PlanSched\\MPC.PlanSched.Service\\MPC.PlanSched.Service.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Azure.Extensions.AspNetCore.DataProtection.Blobs": {
+              "target": "Package",
+              "version": "[1.3.3, )"
+            },
+            "Azure.Extensions.AspNetCore.DataProtection.Keys": {
+              "target": "Package",
+              "version": "[1.2.3, )"
+            },
+            "Azure.Identity": {
+              "target": "Package",
+              "version": "[1.11.4, )"
+            },
+            "Azure.Storage.Blobs": {
+              "target": "Package",
+              "version": "[12.19.1, )"
+            },
+            "Microsoft.AspNetCore.Components": {
+              "target": "Package",
+              "version": "[8.0.11, )"
+            },
+            "Microsoft.AspNetCore.Components.Web": {
+              "target": "Package",
+              "version": "[8.0.11, )"
+            },
+            "Microsoft.Azure.AppConfiguration.AspNetCore": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.Configuration": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.Configuration.Abstractions": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.Configuration.AzureAppConfiguration": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.Configuration.Binder": {
+              "target": "Package",
+              "version": "[8.0.2, )"
+            },
+            "Microsoft.Extensions.Configuration.Json": {
+              "target": "Package",
+              "version": "[8.0.1, )"
+            },
+            "Microsoft.Extensions.Http": {
+              "target": "Package",
+              "version": "[8.0.1, )"
+            },
+            "Microsoft.FeatureManagement": {
+              "target": "Package",
+              "version": "[3.0.0, )"
+            },
+            "Microsoft.FeatureManagement.AspNetCore": {
+              "target": "Package",
+              "version": "[3.0.0, )"
+            },
+            "Microsoft.Identity.Web": {
+              "target": "Package",
+              "version": "[3.9.3, )"
+            },
+            "Microsoft.Identity.Web.UI": {
+              "target": "Package",
+              "version": "[2.12.4, )"
+            },
+            "Microsoft.JSInterop": {
+              "target": "Package",
+              "version": "[8.0.11, )"
+            },
+            "Microsoft.OpenApi": {
+              "target": "Package",
+              "version": "[1.6.3, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.3, )"
+            },
+            "Telerik.DataSource": {
+              "target": "Package",
+              "version": "[3.0.0, )"
+            },
+            "Telerik.Documents.Core": {
+              "target": "Package",
+              "version": "[2023.3.1106, )"
+            },
+            "Telerik.Documents.Spreadsheet": {
+              "target": "Package",
+              "version": "[2023.3.1106, )"
+            },
+            "Telerik.Documents.Spreadsheet.FormatProviders.OpenXml": {
+              "target": "Package",
+              "version": "[2023.3.1106, )"
+            },
+            "Telerik.Documents.SpreadsheetStreaming": {
+              "target": "Package",
+              "version": "[2023.3.1106, )"
+            },
+            "Telerik.Pivot.Core": {
+              "target": "Package",
+              "version": "[0.1.0, )"
+            },
+            "Telerik.Pivot.DataProviders.Xmla": {
+              "target": "Package",
+              "version": "[0.1.0, )"
+            },
+            "Telerik.Recurrence": {
+              "target": "Package",
+              "version": "[0.2.1, )"
+            },
+            "Telerik.Zip": {
+              "target": "Package",
+              "version": "[2023.3.1106, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.312/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

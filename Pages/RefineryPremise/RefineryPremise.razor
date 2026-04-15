@@ -1,0 +1,96 @@
+@page "/refinerypremise/{selectedRole}/{businessCaseId:int}/{isHistoricalPlan:bool}"
+@using MPC.PlanSched.Shared.Common.Extensions
+@using Microsoft.Extensions.Logging;
+@using MPC.PlanSched.UI.Shared;
+@using MPC.PlanSched.Service
+@using MPC.PlanSched.Shared.Service.Schema;
+@using MPC.PlanSched.Shared.Common;
+@using System.Globalization;
+
+@inherits RefineryPremiseBaseComponent;
+
+@inject ILogger<RefineryPremise> logger;
+
+<Spinner IsVisible="@IsLoading()" />
+
+<div class="row align-items-center">
+    <div class="col">
+        <div class="row">
+            <div class="col-auto">
+                <a class="fa fa-long-arrow-left text-decoration-none d-link" @onclick="() => NavigateToRefineryPremise(SelectedRole)"></a>
+            </div>
+            <div class="col font-600">@UIConstants.Plan @PlanName <br />(@PlanDescription) </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="col font-600">@DataLoadingStatusMessage</div>
+    </div>
+    <div class="col-auto">
+        <span class="font-14 font-700" id="region-updated-on">@PlanUpdatedOn</span>
+        <div>
+            <TelerikButton Id="refinery-premise-excel-download-btn" OnClick="@ExcelDownloadAsync" Size="small"><i class="fa-solid fa-download"></i> Download</TelerikButton>
+        </div>
+    </div>
+</div>
+<div class="row align-items-center m-title-text m-space">
+    <div class="col-auto">
+        <div class="font-700">@UIConstants.PlanningPeriod</div>
+    </div>
+    <div class="col-3">
+        <TelerikDropDownList id="ddl-period" Data="@Periods" TextField="PeriodDisplayName" ValueField="PeriodID"
+                             Value="@_selectedPeriodId"
+                             ValueChanged="@((int p) => OnRefineryPremisePeriodSelectionChangedAsync(p))"
+                             ValueExpression="() => _selectedPeriodId">
+            <DropDownListSettings>
+                <DropDownListPopupSettings Height="auto" />
+            </DropDownListSettings>
+            <HeaderTemplate>
+                <strong>@UIConstants.SelectPeriod</strong>
+            </HeaderTemplate>
+            <NoDataTemplate>
+                <div class="no-data-template">
+                    <TelerikFontIcon Class="k-icon k-icon-lg" Icon="@FontIcon.FilesError"></TelerikFontIcon>
+                    <p>@UIConstants.NoItemsAvailable</p>
+                </div>
+            </NoDataTemplate>
+        </TelerikDropDownList>
+    </div>
+    <div class="col-3"></div>
+    <div class="col-auto">
+		<div class="font-700">@UIConstants.RefineryPremiseConstraintDropdown</div>
+    </div>
+    <div class="col-2">
+		<TelerikDropDownList id="ddl-constraints" Data="@RefineryPremiseConstraints" TextField="@UIConstants.RefineryPremiseConstraintDropdown" ValueField="@UIConstants.RefineryPremiseConstraintDropdown"
+                             Value="@_selectedConstraint"
+                             ValueChanged="@( (string v) => OnConstraintChangedAsync(v) )"
+                             ValueExpression="() => _selectedConstraint">
+            <DropDownListSettings>
+                <DropDownListPopupSettings Height="auto" />
+            </DropDownListSettings>
+            <HeaderTemplate>
+				<strong>@UIConstants.RefineryPremiseConstraintDropdown</strong>
+            </HeaderTemplate>
+            <NoDataTemplate>
+                <div class="no-data-template">
+                    <TelerikFontIcon Class="k-icon k-icon-lg" Icon="@FontIcon.FilesError"></TelerikFontIcon>
+                    <p>@UIConstants.NoItemsAvailable</p>
+                </div>
+            </NoDataTemplate>
+        </TelerikDropDownList>
+    </div>
+</div>
+<div class="row m-0">
+    <div class="col p-0">
+        @if (_isParentInitialized)
+        {
+            if (_selectedConstraint == RefineryPremiseConstraintType.Pinv.Description())
+            {
+                <RefineryPremisePinvConstraint SelectedConstraint="@_selectedConstraint" SelectedPeriodId="@_selectedPeriodId" RequestedPeriods="@Periods" SelectedBusinessCaseId="@BusinessCaseId" IsFirstLoad="_isFirstLoad" @key="(_selectedConstraint, _selectedPeriodId)" IsHistoricalPlan="@IsHistoricalPlan" RefineryModel="@RefineryModel" />
+            }
+            else
+            {
+				<RefineryPremiseConstraint SelectedConstraint="@_selectedConstraint" SelectedPeriodId="@_selectedPeriodId" RequestedPeriods="@Periods" SelectedBusinessCaseId="@BusinessCaseId" IsFirstLoad="_isFirstLoad" @key="(_selectedConstraint, _selectedPeriodId)" IsHistoricalPlan="@IsHistoricalPlan" RefineryModel="@RefineryModel" />
+            }
+        }
+    </div>
+</div>

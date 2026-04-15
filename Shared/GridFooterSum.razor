@@ -1,0 +1,53 @@
+@if (!IsManualFooter)
+{
+    <span>Total: @DisplayTotal(OverrideTotal) (@DisplayTotal(InitialTotal))</span>
+}
+else
+{
+    <span>Total: @DisplayTotal(InitialTotal)</span>
+}
+
+@code {
+	[Parameter]
+	public List<Telerik.DataSource.AggregateResult> AggregateResults { get; set; } = new List<Telerik.DataSource.AggregateResult>();
+	[Parameter]
+	public string OverrideProperty { get; set; } = string.Empty;
+	[Parameter]
+	public string InitialProperty { get; set; } = string.Empty;
+	[Parameter]
+	public string PrecisionFormat { get; set; } = string.Empty;
+    [CascadingParameter]
+    public bool IsManualFooter { get; set; } = false;
+	public double? InitialTotal { get; set; }
+	public double? OverrideTotal { get; set; }
+
+	protected override void OnParametersSet()
+	{
+		OverrideTotal = GetAggregateAsDouble(OverrideProperty);
+		InitialTotal = GetAggregateAsDouble(InitialProperty);
+	}
+
+	private double? GetAggregateAsDouble(string memberName)
+	{
+       if( AggregateResults == null || !AggregateResults.Any())
+       {
+           return null;
+       }
+
+		var value = AggregateResults
+			.FirstOrDefault(r => r.AggregateMethodName == "Sum" && r.Member == memberName)?.Value;
+
+		return value switch
+		{
+			double d => d,
+			int f => (double)f,
+			decimal f => (double)f,
+			float f => (double)f,
+			long f => (double)f,
+			_ => null
+		};
+	}
+
+	private string DisplayTotal(double? total) =>
+		total is not null ? ((double)total).ToString(PrecisionFormat) : "";
+}

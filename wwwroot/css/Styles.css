@@ -1,0 +1,512 @@
+:root {
+    --drawer-z-index: 2003;
+    --top-banner-height: 4.5rem;
+    --footer-height: 40px;
+}
+.option-dropdown {
+    border: 1px solid #787474;
+    border-radius: 8px;
+    padding: 1px;
+    width: 90%;
+    height: 29px;
+}
+.main-height {
+    height: calc(100vh - (var(--top-banner-height) + var(--footer-height) ))
+}
+
+.avatar-dropdown {
+    padding-inline: 0.375rem !important
+}
+
+.animation-container {
+    border-radius: 8px;
+    border-style: solid;
+    border-color: black;
+    border-width: 1px
+}
+
+table input[type="text"], table input[type="number"] {
+    border: 1px solid #787474;
+    border-radius: 8px;
+    padding: 3px;
+    width: 90%;
+}
+
+td {
+    vertical-align: middle;
+}
+
+.k-table-md, .k-grid {
+    font-size: 0.85rem !important;
+}
+
+.m-p {
+    padding-top: 8px;
+}
+
+.period-table .col-1 {
+    width: 11.333333%;
+}
+
+.period-table .col-5 {
+    width: 38.666667%;
+}
+
+.period-table > div > div:last-child > div {
+    margin: 12px 0;
+}
+
+.m-space {
+    margin-bottom: 8px;
+}
+
+.m-r-10 {
+    margin-right: 10px;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.fa-long-arrow:hover {
+    color: black;
+}
+
+@media (min-width: 576px) {
+    .modal-dialog {
+        max-width: 760px;
+    }
+}
+
+.modal-header {
+    border: 0;
+}
+
+.k-grid th, .k-column-title {
+    white-space: normal !important;
+    vertical-align: top !important;
+}
+
+.k-grid td:has(input[type=number]) {
+    vertical-align: middle !important;
+}
+
+.k-header {
+    font-family: opensans-bold, sans-serif;
+    padding: 12px 16px;
+}
+
+.m-table-date {
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.m-icon {
+    height: 120%;
+    overflow: hidden;
+    padding-inline-end: 7px
+}
+
+.img-download {
+    border: 1px solid #787474;
+    border-radius: 8px;
+    padding: 0.5rem;
+}
+
+#ddlPeriod {
+    min-width: 280px !important;
+}
+
+.grid-row-border {
+    border-bottom: 1px solid black;
+}
+
+input[id="MinDemandOverride"]:invalid ~ span::after,
+input[id="rpDemandOverrideType"]:invalid ~ span::after,
+input[id="MaxDemandOverride"]:invalid ~ span::after,
+input[id="MinSupplyOverride"]:invalid ~ span::after,
+input[id="MaxSupplyOverride"]:invalid ~ span::after,
+input[id="MinOpeningInventoryOverrideDP"]:invalid ~ span::after,
+input[id="MaxOpeningInventoryOverrideDP"]:invalid ~ span::after,
+input[id="MinOpeningInventoryOverrideRP"]:invalid ~ span::after,
+input[id="MaxOpeningInventoryOverrideRP"]:invalid ~ span::after {
+    color: red;
+    display: block;
+    font-size: 14px;
+}
+
+input[id="MinOpeningInventoryOverrideDP"]:invalid ~ span::after {
+    content: "Value must be less than Max Opening Inventory Override";
+}
+
+input[id="MaxOpeningInventoryOverrideDP"]:invalid ~ span::after {
+    content: "Value must be greater than Min Opening Inventory Override";
+}
+
+input[id="MinOpeningInventoryOverrideRP"]:invalid ~ span::after {
+    content: "Value must be less than Max Opening Inventory Override";
+}
+
+input[id="MaxOpeningInventoryOverrideRP"]:invalid ~ span::after {
+    content: "Value must be greater than Min Opening Inventory Override";
+}
+
+input[id="MinDemandOverride"]:invalid ~ span::after {
+    content: "Calculated Min demand value must be less than Max Demand Override";
+}
+
+input[id="MaxDemandOverride"]:invalid ~ span::after {
+    content: "Value must be greater than Min Demand Override";
+}
+
+input[id="MinSupplyOverride"]:invalid ~ span::after {
+    content: "Value must be less than Max Supply Override";
+}
+
+input[id="MaxSupplyOverride"]:invalid ~ span::after {
+    content: "Value must be greater than Min Supply Override";
+}
+
+input[id="OverrideOpeningInventory"]:invalid ~ span::after {
+    content: "Please enter valid value";
+}
+
+.m-title-text > div > div:first-child {
+    display: inline-block;
+}
+
+    .m-title-text > div > div:first-child + div, .m-title-text > div > div:first-child + ul {
+        display: inline-block;
+    }
+
+#PeriodStartDate {
+    min-width: 110px;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@-webkit-keyframes spin {
+    from {
+        -webkit-transform: rotate(0deg);
+    }
+
+    to {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+.hand-pointer, a {
+    cursor: pointer;
+}
+
+.m-m-b-0 {
+    margin-bottom: 0 !important;
+}
+
+.custom-input-readonly {
+    background-color: #e4e7eb;
+}
+
+.d-input-readonly {
+    background-color: #e4e7eb;
+}
+
+.custom-inputDifferent {
+    background-color: lightyellow;
+}
+
+.d-input-different {
+    background-color: lightyellow;
+}
+
+.custom-invisible {
+    display: none;
+}
+
+.d-none {
+    display: none;
+}
+
+.custom-inputDifferentInvalid {
+    color: orange;
+}
+
+.d-input-different-invalid {
+    color: orange;
+}
+
+.custom-inputDifferentInvaliddiv {
+    border: 0px;
+    color: orange;
+}
+
+.custom-inputSame {
+    background-color: white;
+}
+
+.k-window-title{
+    font-size:26px!important;
+}
+
+.k-window-content {
+    font-size: 17px !important;
+}
+
+.k-button-md {
+    font-size: 17px !important;
+}
+
+.m-rule {
+    margin-bottom: 0.5rem;
+}
+
+.m-top {
+    margin-top: 0.5rem !important;
+}
+
+b {
+    font-family: opensans-semibold, sans-serif;
+}
+
+.grid-no-scroll .k-grid-content {
+    overflow-y: auto;
+}
+
+.grid-no-scroll .k-grid-header,
+.grid-no-scroll .k-grid-footer {
+    padding-right: 0;
+}
+
+.grid-no-scroll .k-grid-header-wrap,
+.grid-no-scroll .k-grid-footer-wrap {
+    border-right-width: 0;
+}
+
+.my-toggle-button {
+    height: 5%;
+    border-radius: 50%;
+    transform: translateY(50%);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    z-index: 1;
+    background-color: #fff;
+    transition: all 300ms ease-in-out; /* match the Drawer's animation */
+}
+
+    .my-toggle-button.collapsed {
+        top: 0%;
+        left: 0%;
+    }
+
+    .my-toggle-button.expanded {
+        top: 0%;
+        left: 0%;
+    }
+
+/*Copied from Navemenu.cssstart */
+.mpc-top-header {
+    position: sticky;
+    z-index: 5;
+}
+
+.mpc-main-banner {
+    background-color: #14479E;
+    color: #FFFFFF !important;
+    height: var(--top-banner-height);
+    top: 0;
+    z-index: 10;
+}
+
+    .mpc-main-banner + div {
+        top: 3.5rem;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.12);
+        background-color: white;
+    }
+
+.mpc-top-header > div {
+    display: flex;
+    z-index: auto;
+}
+
+    .mpc-top-header > div > div {
+        display: inline-block;
+        align-self: center;
+        z-index: auto;
+    }
+
+        .mpc-top-header > div > div > div {
+            line-height: normal;
+            z-index: auto;
+        }
+
+@media (min-width: 641px) {
+    .navbar-toggler {
+        display: none;
+    }
+
+    .collapse {
+        /* Never collapse the sidebar for wide screens */
+        display: block;
+    }
+}
+/*Copied from navmenu.css end*/
+
+
+/*Copied from MaunLayout start*/
+.page {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+    min-height: 100vh
+}
+
+.k-body {
+    height: 100%;
+}
+
+.sidebar {
+    background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
+}
+
+.top-row {
+    background-color: #f7f7f7;
+    border-bottom: 1px solid #d6d5d5;
+    justify-content: flex-end;
+    height: 3.5rem;
+    display: flex;
+    align-items: center;
+}
+
+    .top-row ::deep a, .top-row .btn-link {
+        white-space: nowrap;
+        margin-left: 1.5rem;
+    }
+
+    .top-row a:first-child {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+@media (max-width: 640.98px) {
+    .top-row:not(.auth) {
+        display: none;
+    }
+
+    .top-row.auth {
+        justify-content: space-between;
+    }
+
+    .top-row a, .top-row .btn-link {
+        margin-left: 0;
+    }
+}
+
+@media (min-width: 641px) {
+    .page {
+        flex-direction: row;
+    }
+
+    .sidebar {
+        width: 250px;
+        height: 100vh;
+        position: sticky;
+        top: 0;
+    }
+
+    .top-row {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    .top-row, article {
+        padding-left: 2rem !important;
+        padding-right: 1.5rem !important;
+    }
+}
+.content {
+    min-height: 70vh;
+}
+footer .row {
+    margin-right: 0;
+}
+footer {
+    height: var(--footer-height)    ;
+    width: 100%;
+}
+
+    footer > div > div {
+        line-height: 20px;
+    }
+
+        footer > div > div > span {
+            padding: 0 1.5rem;
+        }
+
+
+/*Copied from mainlayout End*/
+
+.k-breadcrumb {
+    font-size: 14px !important
+}
+
+.breadcrumb-icon {
+    align-content: center;
+    align-items: center;
+    justify-items: center;
+    justify-content: center;
+    display: flex;
+    font-size: 15px;
+    text-shadow: 2px 2px 4px #000000;
+}
+
+.k-drawer {
+    border-bottom-width: 1px !important
+}
+
+.navigation-drawer {
+    height: 100%;
+    align-items: start;
+    text-align: start;
+    z-index: var(--drawer-z-index);
+}
+
+.grid-no-scroll .k-grid-content {
+    overflow-y: auto;
+}
+
+.grid-no-scroll .k-grid-header,
+.grid-no-scroll .k-grid-footer {
+    padding-right: 0; /* version 2.26 and older requires !important here */
+}
+
+.grid-no-scroll .k-grid-header-wrap,
+.grid-no-scroll .k-grid-footer-wrap {
+    border-right-width: 0;
+}
+
+.custom-icons .k-hierarchy-cell .k-svg-icon.k-svg-i-minus svg path {
+    d: path("M256 352 128 160h256L256 352z");
+}
+
+.custom-icons .k-hierarchy-cell .k-svg-icon.k-svg-i-plus svg path {
+    d: path("M352 256 160 384V128l192 128z");
+}
+
+.telerik-date-picker {
+    height: 25px;
+    padding: 0;
+    line-height: 25px;
+}

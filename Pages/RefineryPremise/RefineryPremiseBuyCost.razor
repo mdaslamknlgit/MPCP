@@ -1,0 +1,68 @@
+@page "/refineryplanningbuy/{selectedRole}/{businessCaseId:int}/{isHistoricalPlan:bool}"
+@using MPC.PlanSched.UI.Pages.ProductSupplyCost.Components
+
+@inherits ProductSupplyCostBaseComponent
+
+<Spinner IsVisible="@IsLoading()" />
+
+<div class="row align-items-center">
+    <div class="col">
+        <div class="row">
+            <div class="col-auto">
+                <a class="fa fa-long-arrow-left text-decoration-none d-link" @onclick="() => NavigateToRefineryPremise(SelectedRole)"></a>
+            </div>
+            <div class="col font-600">@UIConstants.Plan @PlanName <br />(@PlanDescription) </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="col font-600">@DataLoadingStatusMessage</div>
+    </div>
+    <div class="col-auto">
+        <span class="font-14 font-700" id="region-updated-on">@PlanUpdatedOn</span>
+        <div>
+            <TelerikButton Id="buy-cost-excel-download-btn" OnClick="@ExcelDownloadAsync" Size="small"><i class="fa-solid fa-download"></i> Download</TelerikButton>
+        </div>
+    </div>
+    <div class="row align-items-center">
+        <div class="col">
+            <span class="font-14 font-700">@UIConstants.PriceEffectiveDate @PriceEffectiveDate</span>
+        </div>
+    </div>
+</div>
+<div class="row align-items-center m-title-text m-space">
+    <div class="col-auto">
+        <div class="font-700">@UIConstants.PlanningPeriod</div>
+    </div>
+    <div class="col-3">
+        <TelerikDropDownList id="ddl-period" Data="@Periods" TextField="PeriodDisplayName" ValueField="PeriodID"
+                             Value="@SelectedPeriodId" ValueChanged="@((int v) => { GetProductSupplyCostsOnPeriodSelectionChangedAsync(v); })">
+            <DropDownListSettings>
+                <DropDownListPopupSettings Height="auto" />
+            </DropDownListSettings>
+            <HeaderTemplate>
+                <strong>@UIConstants.SelectPeriod</strong>
+            </HeaderTemplate>
+            <NoDataTemplate>
+                <div class="no-data-template">
+                    <TelerikFontIcon Class="k-icon k-icon-lg" Icon="@FontIcon.FilesError"></TelerikFontIcon>
+                    <p>@UIConstants.NoItemsAvailable</p>
+                </div>
+            </NoDataTemplate>
+        </TelerikDropDownList>
+    </div>
+    <div class="col"></div>
+    <div class="col-auto">
+        <div class="font-700">@UIConstants.SortBy</div>
+    </div>
+    <div class="col-5">
+        <TelerikButtonGroup SelectionMode="@ButtonGroupSelectionMode.Single">
+            <ButtonGroupToggleButton @bind-Selected="@NoneSelected" @onclick="() => SortProductSupplyCostsBy(x => x.Id)">None</ButtonGroupToggleButton>
+            <ButtonGroupToggleButton @onclick="() => SortProductSupplyCostsBy(x => x.ProductName)">Product</ButtonGroupToggleButton>
+        </TelerikButtonGroup>
+    </div>
+</div>
+<div class="row m-0">
+    <div class="col p-0">
+        <ProductSupplyCostRPGrid ProductSupplyAndCostData="@ProductBuyAndCostRefineryData" ReadOnlyFlag="@ReadOnlyFlag" IsHistoricalPlan="@IsHistoricalPlan" IsDataInputDateVisible=true IsOverrideVisible=false IsLocationVisible=false />
+    </div>
+</div>

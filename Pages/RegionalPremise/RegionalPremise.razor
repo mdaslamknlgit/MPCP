@@ -1,0 +1,107 @@
+@page "/regionalpremise/{selectedRole}/{businessCaseId:int}/{isHistoricalPlan:bool}"
+@using MPC.PlanSched.Shared.Common.Extensions
+@using MPC.PlanSched.UI.Pages.RefineryPremise
+@using Microsoft.Extensions.Logging;
+@using MPC.PlanSched.Service;
+@using MPC.PlanSched.Shared.Service.Schema;
+@using PlanSched.Shared.Common;
+@using System.Globalization;
+
+@inherits RegionalPremiseBaseComponent;
+
+@inject ILogger<RegionalPremise> logger;
+
+<Spinner IsVisible="@IsLoading()" />
+
+<div class="row align-items-center">
+	<div class="col">
+		<div class="row">
+			<div class="col-auto">
+				<a class="fa fa-long-arrow-left text-decoration-none d-link" @onclick="() => NavigateToRegionRP(SelectedRole)"></a>
+			</div>
+			<div class="col font-600">@UIConstants.EditPlan @RegionTitle <br />(@PlanDescription) </div>
+		</div>
+	</div>
+	<div class="col">
+		<div class="col font-600">@DataLoadingStatusMessage</div>
+	</div>
+	<div class="col-auto">
+		<span class="font-14 font-700" id="region-updated-on">@PlanUpdatedOn</span>
+		<div>
+			<TelerikButton Id="regional-premise-rp-excel-download-btn" OnClick="@ExcelDownloadAsync" Size="small"><i class="fa-solid fa-download"></i> Download</TelerikButton>
+		</div>
+	</div>
+</div>
+<div class="row align-items-center m-title-text m-space">
+	<div class="col-auto">
+		<div class="font-700">@UIConstants.PlanningPeriod</div>
+	</div>
+	<div class="col-3">
+		<TelerikDropDownList id="ddl-period" Data="@Periods" TextField="PeriodDisplayName" ValueField="PeriodID"
+							 Value="@SelectedPeriodId" ValueChanged="@( (int v) => RegionalPremisePeriodSelectionChangedAsync(v) )">
+			<DropDownListSettings>
+				<DropDownListPopupSettings Height="auto" />
+			</DropDownListSettings>
+			<HeaderTemplate>
+				<strong>@UIConstants.SelectPeriod</strong>
+			</HeaderTemplate>
+			<NoDataTemplate>
+				<div class="no-data-template">
+					<TelerikFontIcon Class="k-icon k-icon-lg" Icon="@FontIcon.FilesError"></TelerikFontIcon>
+					<p>@UIConstants.NoItemsAvailable</p>
+				</div>
+			</NoDataTemplate>
+		</TelerikDropDownList>
+	</div>
+    @if (ConfigurationUI.IsMidtermEnabled)
+    {
+        <div class="col-3"></div>
+    }
+    else
+    {
+        <div class="col-3 font-700">@UIConstants.PlanType @PlanType</div>
+    }
+	<div class="col-auto">
+		<div class="font-700">@UIConstants.RegionalPremiseConstraint</div>
+	</div>
+	<div class="col-2">
+		<TelerikDropDownList id="ddl-constraints" Data="@RegionalPremiseConstraints" TextField="Key" ValueField="Value"
+							 Value="@SelectedConstraint" ValueChanged="@((string v) =>  RegionalPremiseConstraintSelectionChangedAsync(v))">
+			<DropDownListSettings>
+				<DropDownListPopupSettings Height="auto" />
+			</DropDownListSettings>
+			<HeaderTemplate>
+				<strong>@UIConstants.SelectRegionalPremiseConstraint</strong>
+			</HeaderTemplate>
+			<NoDataTemplate>
+				<div class="no-data-template">
+					<TelerikFontIcon Class="k-icon k-icon-lg" Icon="@FontIcon.FilesError"></TelerikFontIcon>
+					<p>@UIConstants.NoItemsAvailable</p>
+				</div>
+			</NoDataTemplate>
+		</TelerikDropDownList>
+	</div>
+</div>
+<div class="row m-0">
+	<div class="col p-0">
+		@if (_isParentInitialized)
+		{
+			@if (SelectedConstraint == RegionalPremiseConstraintType.RegionalCapsBounds.Description())
+			{
+				<RegionalCapsBounds SelectedConstraint="@SelectedConstraint" SelectedPeriodId="@SelectedPeriodId" RequestedPeriods="@Periods" SelectedBusinessCaseId="BusinessCaseId" IsFirstLoad="_isFirstLoad" @key="(SelectedConstraint, SelectedPeriodId)" IsHistoricalPlan="@IsHistoricalPlan" />
+			}
+			else if (SelectedConstraint == RegionalPremiseConstraintType.RegionalTransfer.Description())
+			{
+				<RegionalTransfer SelectedConstraint="@SelectedConstraint" SelectedPeriodId="@SelectedPeriodId" RequestedPeriods="@Periods" SelectedBusinessCaseId="BusinessCaseId" IsFirstLoad="_isFirstLoad" @key="(SelectedConstraint, SelectedPeriodId)" IsHistoricalPlan="@IsHistoricalPlan" />
+			}
+			else if (SelectedConstraint.Contains(Constant.Caps) || SelectedConstraint.Contains(Constant.Bounds) || SelectedConstraint.Contains(Constant.Proclim))
+			{
+				<RefineryPremiseConstraint SelectedConstraint="@SelectedConstraint" SelectedPeriodId="@SelectedPeriodId" RequestedPeriods="@Periods" SelectedBusinessCaseId="@BusinessCaseId" IsFirstLoad="_isFirstLoad" @key="(SelectedConstraint, SelectedPeriodId)" IsHistoricalPlan="@IsHistoricalPlan" />
+			}
+			else if (SelectedConstraint.Contains(Constant.Pinv))
+			{
+				<RefineryPremisePinvConstraint SelectedConstraint="@SelectedConstraint" SelectedPeriodId="@SelectedPeriodId" RequestedPeriods="@Periods" SelectedBusinessCaseId="@BusinessCaseId" IsFirstLoad="_isFirstLoad" @key="(SelectedConstraint, SelectedPeriodId)" IsHistoricalPlan="@IsHistoricalPlan"/>
+			}
+		}
+	</div>
+</div>

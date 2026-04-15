@@ -1,0 +1,367 @@
+@page "/backcastingproductsupplycost/{selectedRole}/{businessCaseId:int}/{isHistoricalPlan:bool}"
+@using Microsoft.Extensions.Logging;
+@using MPC.PlanSched.Service;
+@using MPC.PlanSched.Shared.Service.Schema;
+@using PlanSched.Shared.Common;
+@using System.Globalization;
+@using MPC.PlanSched.Model;
+@using MPC.PlanSched.UI.Pages.ProductSupplyCost;
+@using MPC.PlanSched.UI.Pages.ProductSupplyCost.Components;
+
+@inherits BackcastingProductSupplyCostBaseComponent
+
+<Spinner IsVisible="@IsLoading()" />
+
+<div class="row align-items-center">
+	<div class="col">
+		<div class="row">
+			<div class="col-auto">
+				<a class="fa fa-long-arrow-left text-decoration-none d-link" @onclick="() => NavigateToRegionBackcasting(SelectedRole)"></a>
+			</div>
+			<div class="col font-600">@UIConstants.EditPlan @RegionTitle <br />(@PlanDescription) </div>
+		</div>
+	</div>
+	<div class="col d-flex flex-column">
+		<div class="font-600">@DataLoadingStatusMessage</div>
+
+		@if (ProductSupplyAndCostData != null && ProductSupplyAndCostData.Any(d => d.BACloseStatus == UIConstants.No))
+		{
+			<div class="text-danger font-italic font-14 mt-1">
+				❌  @UIConstants.FinalizedDataWarningMessage
+			</div>
+		}
+	</div>
+	<div class="col-auto d-flex flex-column align-items-center">
+		<a class="hand-pointer font-500 custom-link"
+		   @onclick="@(ReadOnlyFlag ? null : (() => _refreshModal.OpenAsync(RegionModel)))"
+		   style="@(ReadOnlyFlag ? "pointer-events: none; opacity: 0.5;" : "")">
+			Refresh Data
+		</a>
+		<CascadingValue Value="SelectedRole">
+			<a class="hand-pointer font-500 custom-link mt-2"
+			   @onclick="@(() => { _notificationModal.OpenAsync(RegionModel, SelectedRole, PlanNSchedConstant.SupplyCost); })">
+				Alerts and Notification
+			</a>
+		</CascadingValue>
+	</div>
+	<div class="col-auto">
+		<span class="font-14 font-700" id="region-updated-on">@PlanUpdatedOn</span>
+		<div>
+			<TelerikButton Id="supply-excel-download-btn" OnClick="@(() => { _excelDialogRef.Open();})" Size="small"><i class="fa-solid fa-download"></i> Download</TelerikButton>
+		</div>
+	</div>
+</div>
+<div class="row align-items-center">
+	<div class="col-2">
+		<span class="font-14 font-700">@UIConstants.PriceEffectiveDate @PriceEffectiveDate</span>
+	</div>
+	<div class="col-2">
+		<span class="font-14 font-700">@UIConstants.SupplyEffectiveDate @SupplyEffectiveDate</span>
+	</div>
+</div>
+<div class="row align-items-center m-title-text m-space">
+	<div class="col-auto">
+		<div class="font-700">@UIConstants.PlanningPeriod</div>
+	</div>
+	<div class="col-3">
+		<TelerikDropDownList id="ddl-period" Data="@Periods" TextField="PeriodDisplayName" ValueField="PeriodID"
+							 Value="@SelectedPeriodId" ValueChanged="@((int v) => { BackcastingProductSupplyCostsOnPeriodSelectionChangedAsync(v); })">
+			<DropDownListSettings>
+				<DropDownListPopupSettings Height="auto" />
+			</DropDownListSettings>
+			<HeaderTemplate>
+				<strong>@UIConstants.SelectPeriod</strong>
+			</HeaderTemplate>
+			<NoDataTemplate>
+				<div class="no-data-template">
+					<TelerikFontIcon Class="k-icon k-icon-lg" Icon="@FontIcon.FilesError"></TelerikFontIcon>
+					<p>@UIConstants.NoItemsAvailable</p>
+				</div>
+			</NoDataTemplate>
+		</TelerikDropDownList>
+	</div>
+	<div class="col"></div>
+	<div class="col-auto">
+		<div class="font-700">@UIConstants.SortBy</div>
+	</div>
+	<div class="col-5">
+		<TelerikButtonGroup SelectionMode="@ButtonGroupSelectionMode.Single">
+			<ButtonGroupToggleButton @bind-Selected="@NoneSelected" @onclick="() => SortProductSupplyCostsBy(x => x.Id)">None</ButtonGroupToggleButton>
+			<ButtonGroupToggleButton @onclick="() => SortProductSupplyCostsBy(x => x.LocationName)">Planning Region</ButtonGroupToggleButton>
+			<ButtonGroupToggleButton @onclick="() => SortProductSupplyCostsBy(x => x.ProductName)">Product</ButtonGroupToggleButton>
+		</TelerikButtonGroup>
+	</div>
+</div>
+<div class="row m-0">
+	<div class="col p-0"> 
+		<span class="font-700; k-font-weight-bold">Product Supply and Cost</span>
+        <TelerikGrid id="Supply-grid" TItem="ProductSupplyAndCost" OnRead="@(args => OnReadHandlerAsync(args, IsReady, ProductSupplyAndCostData ?? []))" @ref="@GridSupplyReference" Height="60vh"  Width="1950px"
+					 Sortable="true" Resizable="true"
+					 Groupable="true" FilterMode="@GridFilterMode.FilterMenu"
+					 FilterMenuType="@FilterMenuType.CheckBoxList"
+					 ShowColumnMenu="true" Reorderable="true" Pageable="false"
+					 LoadGroupsOnDemand=@LoadGroupsOnSupply>
+			<GridToolBarTemplate>
+				<TelerikButton Size="sm" ButtonType="@ButtonType.Submit" @onclick="ToggleSupplyGridGroupByCollapseAsync"
+							   Icon="@( LoadGroupsOnSupply ? SvgIcon.Plus : SvgIcon.Minus )"
+							   Title="@( LoadGroupsOnSupply ? "Expand" : "Collapse" )">
+					Expand/Collapse all groups
+				</TelerikButton>
+			</GridToolBarTemplate>
+			<GridAggregates>
+				<GridAggregate Field=@nameof(ProductSupplyAndCost.MinSupplyOverrideCalculated) Aggregate="@GridAggregateType.Sum" /> 
+				<GridAggregate Field=@nameof(ProductSupplyAndCost.SystemMinSupply) Aggregate="@GridAggregateType.Sum" />
+				<GridAggregate Field=@nameof(ProductSupplyAndCost.MaxSupplyOverrideCalculated) Aggregate="@GridAggregateType.Sum" />
+				<GridAggregate Field=@nameof(ProductSupplyAndCost.SystemMaxSupply) Aggregate="@GridAggregateType.Sum" />
+				<GridAggregate Field=@nameof(ProductSupplyAndCost.CostOverrideCalculated) Aggregate="@GridAggregateType.Sum" />
+				<GridAggregate Field=@nameof(ProductSupplyAndCost.SystemCost) Aggregate="@GridAggregateType.Sum" />
+				<GridAggregate Field=@nameof(ProductSupplyAndCost.ProductName) Aggregate="@GridAggregateType.Count" />
+				<GridAggregate Field=@nameof(ProductSupplyAndCost.LocationName) Aggregate="@GridAggregateType.Count" />
+			</GridAggregates>
+			<GridSettings>
+				<GridColumnMenuSettings Lockable="false">
+					<GridColumnMenuChooser>
+						<Template>
+							@{
+								var columns = context.Columns;
+								foreach (var column in columns)
+								{
+									<GridColumnMenuChooserItem Title="@column.DisplayTitle" ColumnId="@column.Id" />
+								}
+							}
+						</Template>
+					</GridColumnMenuChooser>
+				</GridColumnMenuSettings>
+			</GridSettings>
+			<GridColumns>
+				<GridColumn Width="140px" id="rp-supply-location-name" Field="LocationName" Title="Location" Locked="true">
+                    <FilterMenuTemplate Context="context">
+                        <Filter Data="@LocationOptions"
+                                Field="@(nameof(ProductSupplyAndCost.LocationName))" FilterDescriptor="@context.FilterDescriptor">
+                        </Filter>
+                    </FilterMenuTemplate>
+					<GroupFooterTemplate>
+						Subtotal:
+					</GroupFooterTemplate>
+					<FooterTemplate>
+						Total Records: @context.Count
+					</FooterTemplate>
+				</GridColumn>
+				<GridColumn Width="140px" id="rp-supply-location-description" Field="LocationDescription" Title="Location Description" Locked="true" Visible="false"></GridColumn>
+				<GridColumn Width="140px" id="rp-supply-state-code" Field="StateCode" Title="State Code" Locked="true" Visible="false"></GridColumn>
+				<GridColumn Width="140px" id="rp-supply-pims-location-name" Field="ProductName" Title="PIMS Material Code" Locked="true">
+                    <FilterMenuTemplate Context="context">
+                        <Filter Data="@ProductOptions"
+                                Field="@(nameof(ProductSupplyAndCost.ProductName))" FilterDescriptor="@context.FilterDescriptor">
+                        </Filter>
+                    </FilterMenuTemplate>
+					<Template>
+						@{
+							var supplyAndCostData = (ProductSupplyAndCost)context;
+							<div>@(supplyAndCostData.ProductName)</div>
+							<div>@(supplyAndCostData.PIMSCode)</div>
+						}
+					</Template>
+				</GridColumn>
+				<GridColumn Width="140px" id="rp-supply-product-description" Field="ProductDescription" Title="Product Description" Locked="true"></GridColumn>
+				<GridColumn Width="140px" id="rp-supply-tier" Field="ContractorType" Title="Tier" Locked="true"></GridColumn>
+				<GridColumn Width="140px" id="rp-supply-min" Field="MinSupplyOverrideCalculated" Title="Min. Supply (MBD)" Locked="true">
+					<Template>
+						@{
+							var supplyAndCostData = (ProductSupplyAndCost)context;
+							supplyAndCostData.ValidateSupplyValue();
+							<div class="@((@CommonHelper.IsValueDifferent(supplyAndCostData.SystemMinSupply, supplyAndCostData.MinSupplyOverrideCalculated, Constant.DisplayQtyDecimalPlaces)) ? "d-input-different" : "d-none") @((@supplyAndCostData.MinSupplyOverrideCalculated <= SupplyOverrideMinimumValue) ? "d-input-different-invalid" : "")">
+								Overridden: @supplyAndCostData.DisplaySupplyQuantity(supplyAndCostData.MinSupplyOverrideCalculated)
+							</div>
+							<div class="@((@CommonHelper.IsValueDifferent(supplyAndCostData.SystemMinSupply, supplyAndCostData.PreviousSystemMinSupply, Constant.DisplayQtyDecimalPlaces)) ? "d-input-different" : "d-none") ">
+								Previous System: @(supplyAndCostData.PreviousSystemMinSupply?.ToString("0.000") ?? string.Empty)
+							</div>
+							<div class="@(supplyAndCostData.CrossRegionSystemMinSupply.HasValue ? "d-input-different" : "d-none") ">
+								Cross Regional: @(supplyAndCostData.CrossRegionSystemMinSupply?.ToString("0.000") ?? string.Empty)
+							</div>
+							<div>System: @(supplyAndCostData.SystemMinSupply?.ToString("0.000") ?? string.Empty)</div>
+							<span style="color:red">@supplyAndCostData.MinCalculatedValidationMessage</span>
+						}
+					</Template>
+					<GroupFooterTemplate>
+						@context.Sum
+					</GroupFooterTemplate>
+					<FooterTemplate>
+						<GridFooterSum AggregateResults="@context?.AggregateResults"
+									   OverrideProperty=@nameof(ProductSupplyAndCost.MinSupplyOverrideCalculated)
+									   InitialProperty=@nameof(ProductSupplyAndCost.SystemMinSupply)
+									   PrecisionFormat="@UIConstants.QuantityDigitPrecisionFormat" />
+					</FooterTemplate>
+				</GridColumn>
+				<GridColumn Width="140px" id="rp-supply-max" Field="MaxSupplyOverrideCalculated" Title="Max. Supply (MBD)" Locked="true">
+					<Template>
+						@{
+							var supplyAndCostData = (ProductSupplyAndCost)context;
+							supplyAndCostData.ValidateSupplyValue();
+							<div class="@((@CommonHelper.IsValueDifferent(supplyAndCostData.SystemMaxSupply, supplyAndCostData.MaxSupplyOverrideCalculated, Constant.DisplayQtyDecimalPlaces)) ? "d-input-different" : "d-none") @((@supplyAndCostData.MaxSupplyOverrideCalculated <= SupplyOverrideMinimumValue) ? "d-input-different-invalid" : "")">
+								Overridden: @supplyAndCostData.DisplaySupplyQuantity(supplyAndCostData.MaxSupplyOverrideCalculated)
+							</div>
+							<div class="@((@CommonHelper.IsValueDifferent(supplyAndCostData.SystemMaxSupply, supplyAndCostData.PreviousSystemMaxSupply, Constant.DisplayQtyDecimalPlaces)) ? "d-input-different" : "d-none") ">
+								Previous System: @(supplyAndCostData.PreviousSystemMaxSupply?.ToString("0.000") ?? string.Empty)
+							</div>
+							<div class="@(supplyAndCostData.CrossRegionSystemMaxSupply.HasValue ? "d-input-different" : "d-none") ">
+								Cross Regional: @(supplyAndCostData.CrossRegionSystemMaxSupply?.ToString("0.000") ?? string.Empty)
+							</div>
+							<div class="font-14">System: @(supplyAndCostData.SystemMaxSupply?.ToString("0.000") ?? string.Empty)</div>
+							<span style="color:red">@supplyAndCostData.MaxCalculatedValidationMessage</span>
+						}
+					</Template>
+					<GroupFooterTemplate>
+						@context.Sum
+					</GroupFooterTemplate>
+					<FooterTemplate>
+						<GridFooterSum AggregateResults="@context?.AggregateResults"
+									   OverrideProperty=@nameof(ProductSupplyAndCost.MaxSupplyOverrideCalculated)
+									   InitialProperty=@nameof(ProductSupplyAndCost.SystemMaxSupply)
+									   PrecisionFormat="@UIConstants.QuantityDigitPrecisionFormat" />
+					</FooterTemplate>
+				</GridColumn>
+				<GridColumn Width="140px" id="rp-supply-uom" Field="SystemQtyUOM" Title="UOM" Visible="false"></GridColumn>
+				<GridColumn Width="140px" id="rp-supply-cost" Field="CostOverrideCalculated" Title="Cost ($/bbl)" Locked="true">
+					<Template>
+						@{
+							var item = context as ProductSupplyAndCost;
+							<div class="@((@CommonHelper.IsValueDifferent(item.SystemCost, item.CostOverrideCalculated, Constant.DisplayPriceDecimalPlaces)) ? "d-input-different" : "d-none")">
+								Overridden: @(item.CostOverrideCalculated?.ToString("0.0000") ?? "")
+							</div>
+							<div class="@((CommonHelper.IsValueDifferent(item.SystemCost, item.PreviousSystemCost, Constant.DisplayPriceDecimalPlaces)) ? "d-input-different" : "d-none")">
+								Previous System: @(item.PreviousSystemCost?.ToString("0.0000") ?? "")
+							</div>
+							<div class="font-14">System: @item.DisplaySupplyCost(item.SystemCost)</div>
+						}
+					</Template>
+					<GroupFooterTemplate>
+						@context.Sum
+					</GroupFooterTemplate>
+					<FooterTemplate>
+						<GridFooterSum AggregateResults="@context?.AggregateResults"
+									   OverrideProperty=@nameof(ProductSupplyAndCost.CostOverrideCalculated)
+									   InitialProperty=@nameof(ProductSupplyAndCost.SystemCost)
+									   PrecisionFormat="@UIConstants.PriceDigitPrecisionFormat" />
+					</FooterTemplate>
+				</GridColumn>
+				<GridColumn Width="140px" id="rp-supply-cost-uom" Field="SystemCostUOM" Title="CostUOM" Visible="false"></GridColumn>
+				<GridColumn Width="140px" Id="rp-min-supply-override-absolute" Field="MinSupplyOverrideAbsolute" Title="Min Supply Override">
+					<Template>
+						<CascadingValue Value="ReadOnlyFlag">
+							<ProductSupplyAndCostInput Context="context"
+												   Precision=@SupplyQuantityDecimalPlaces
+												   ValueFunc="SupplyAndCostData => GetValue(SupplyAndCostData.SystemMinSupply, SupplyAndCostData.MinSupplyOverrideCalculated, SupplyAndCostData.MinSupplyOverrideAbsolute, Constant.DisplayQtyDecimalPlaces)"
+												   OnChange="((ChangeEventArgs e) => OverrideMinSupplyValue(e, context, UIConstants.AbsoluteEntityValue))" />
+						</CascadingValue>
+					</Template>
+				</GridColumn>
+ 				<GridColumn Width="140px" Id="rp-max-supply-override-absolute" Field="MaxSupplyOverrideAbsolute" Title="Max Supply Override">
+					<Template>
+						<CascadingValue Value="ReadOnlyFlag">
+							<ProductSupplyAndCostInput Context="context"
+												   Precision=@SupplyQuantityDecimalPlaces
+												   ValueFunc="SupplyAndCostData => GetValue(SupplyAndCostData.SystemMaxSupply, SupplyAndCostData.MaxSupplyOverrideCalculated, SupplyAndCostData.MaxSupplyOverrideAbsolute, Constant.DisplayQtyDecimalPlaces)"
+												   OnChange="((ChangeEventArgs e) => OverrideMaxSupplyValue(e, context, UIConstants.AbsoluteEntityValue))" />
+						</CascadingValue>
+					</Template>
+				</GridColumn>
+
+                <GridColumn Width="140px" Id="rp-supply-cost-override-absolute" Field="CostOverrideAbsolute" Title="Cost Override">
+                    <Template>
+                        <CascadingValue Value="ReadOnlyFlag">
+                            <ProductSupplyAndCostDecimalInput Context="context"
+                                                       Precision=@SupplyPriceDecimalPlaces
+													   ValueFunc="SupplyAndCostData => GetValue(SupplyAndCostData.SystemCost, SupplyAndCostData.CostOverrideCalculated, SupplyAndCostData.CostOverrideAbsolute, Constant.DisplayPriceDecimalPlaces)"
+                                                       OnChange="((ChangeEventArgs e) => OverrideCostValue(e, context, UIConstants.AbsoluteEntityValue))" />
+                        </CascadingValue>
+                    </Template>
+                </GridColumn>
+
+				<GridColumn Width="140px" id="modified-flag" Field="IsOverridden" Title="Data Override">
+					<Template>
+						@{
+							var supplyAndCostData = (ProductSupplyAndCost)context;
+							supplyAndCostData.SetOverrideFlag();
+							<div class="text-center">@supplyAndCostData.IsOverridden</div>
+						}
+					</Template>
+				</GridColumn>
+
+				<GridColumn Width="140px" id="rp-supply-cost-updatedby" Field="UpdatedBy" Title="Updated By">
+					<Template>
+						@{
+							var supplyAndCostData = (ProductSupplyAndCost)context;
+							<div class="text-center">@supplyAndCostData.UpdatedBy</div>
+						}
+					</Template>
+				</GridColumn>
+
+				<GridColumn Width="140px" id="rp-supply-cost-updatedOn" Field="UpdatedOn" Title="Updated On">
+					<Template>
+						@{
+							var supplyAndCostData = (ProductSupplyAndCost)context;
+							var updatedOn = _localTimeZoneName == PlanNSchedConstant.DefaultTimeZone
+							? supplyAndCostData.UpdatedOn.Value.ToLocalTime()
+							: UtilityUI.ConvertUTCToLocal(supplyAndCostData.UpdatedOn.Value, _localTimeZoneName);
+						}
+						<div class="text-center">@updatedOn</div>
+					</Template>
+				</GridColumn>
+
+				<GridColumn Width="140px" Id="rp-supply-cost-source" Field="DataSource" Title="DataSource">
+					<Template>
+						@{
+							var supplyAndCostData = (ProductSupplyAndCost)context;
+							<div class="text-center">@supplyAndCostData.DataSource</div>
+						}
+					</Template>
+				</GridColumn>
+
+				<GridColumn Width="140px" id="rp-supply-cost-comments" Field="Comments" Title="Comments">
+					<Template>
+						@{
+							var supplyAndCostData = (ProductSupplyAndCost)context;
+						}
+						<input type="text" class="form-control" @bind="supplyAndCostData.Comments" @oninput="(e) => ValidateCommentsLength(e, context)" disabled="@ReadOnlyFlag" />
+					</Template>
+				</GridColumn>
+
+			</GridColumns>
+			<NoDataTemplate>
+				<strong>@UIConstants.NoDataAvailable</strong>
+			</NoDataTemplate>
+		</TelerikGrid>
+	</div>
+</div>
+<div class="row text-end m-top">
+	<div class="col">
+		@{
+			var productSupplyAndCostItems = (ProductSupplyAndCostData);
+
+			if (!string.IsNullOrEmpty(RegionName) && !ReadOnlyFlag)
+			{
+				
+				<AuthorizeView Policy="@(EditBackcastingPIMSPermissionName(RegionName))" Context="auth">
+					<TelerikButton Id="btn-save-supply-rp" ThemeColor="primary" ButtonType="@ButtonType.Submit"
+								   @onclick="(() => SaveProductSupplyCostAsync(productSupplyAndCostItems))">Save</TelerikButton>
+					<TelerikButton Id="btn-cancel-supply-rp" ButtonType="@ButtonType.Button" @onclick="(() => CancelProductSupplyCost())">Cancel</TelerikButton>
+				</AuthorizeView>
+			}
+		}
+	</div>
+</div>
+
+<TelerikWindow Modal="true"
+			   @bind-Visible="@StatusPopup">
+	<WindowContent>
+		<div class="row p-3 fs-6">@StatusMessageContent</div>
+		<div class="text-center"><TelerikButton OnClick="Close">Ok</TelerikButton></div>
+	</WindowContent>
+</TelerikWindow>
+
+<MPC.PlanSched.UI.Shared.RefreshDialog @ref="_refreshModal" />
+<ExcelDownloadDialog @ref="_excelDialogRef" SelectedPriceTypeChanged="@OnPriceTypeChanged"
+					 OnConfirm="() => ExcelDownloadAsync()">
+</ExcelDownloadDialog>
+<MPC.PlanSched.UI.Shared.NotificationDialog @ref="_notificationModal" />

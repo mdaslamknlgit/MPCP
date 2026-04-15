@@ -1,0 +1,106 @@
+@page "/"
+@layout InitialLayout
+@using Microsoft.Extensions.Logging
+@using MPC.PlanSched.Service;
+@using MPC.PlanSched.UI.ViewModel;
+@using MPC.PlanSched.Shared.Common;
+@using MPC.PlanSched.UI;
+
+@inject ILogger<Start> logger
+@inject ISessionService sessionService
+@inject NavigationManager NavigationManager
+
+<div class="container-fluid">
+	<div class="row">
+		<div class="col"></div>
+		<div class="col-auto">
+			<div class="row text-center align-content-center start-layout">
+				<div class="col-auto">
+					<div class="row transparent-box">
+						<div class="col-12 pt-4">
+							<img src="../Images/M_Logo.png" width="100" />
+						</div>
+						<div class="col-12 p-4">
+							<h5>@PlanNSchedConstant.ApplicationName</h5>
+						</div>
+						<div class="col-12">
+							<div class="row">
+								<CascadingAuthenticationState>
+									<AuthorizeView Policy="ViewPIMSForecastBackcast">
+										<Authorized>
+											<div class="col">
+												<a @onclick="(()=>{SetSelectedRoleRVCO();})">
+												    @PlanNSchedConstant.PIMSPlanning													
+												</a>
+                                            </div>
+                                        </Authorized>
+                                    </AuthorizeView>
+                                </CascadingAuthenticationState>
+                                <CascadingAuthenticationState>
+                                    <AuthorizeView Policy="ViewDPO">
+                                        <Authorized>
+                                            <div class="col">
+                                                <a @onclick="(()=>{SetSelectedRoleDPO();})">@PlanNSchedConstant.DistributionPlanning</a>
+                                            </div>
+                                        </Authorized>
+                                    </AuthorizeView>
+                                </CascadingAuthenticationState>
+                                <CascadingAuthenticationState>
+                                    <AuthorizeView Policy="ViewManager">
+                                        <Authorized>
+                                            <div class="col">
+                                                <a @onclick="(()=>{SetSelectedRoleManager();})">@PlanNSchedConstant.ManagementView</a>
+                                            </div>
+                                        </Authorized>
+
+                                    </AuthorizeView>
+                                </CascadingAuthenticationState>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col"></div>
+    </div>
+</div>
+
+@* This is not in Start.razor.css because otherwise when page is loaded,
+   it adds some tag to the elements and does not actually apply to k-body *@
+<style>
+    .k-body {
+        background-image: @BackgroundImageUrl !important;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+</style>
+
+@code {
+    public string BackgroundImageUrl { get; set; } = string.Empty;
+    private Random RandomNum = new Random();
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            CommonHelper.UpdateBaggage(sessionService.GetCorrelationId());
+
+            var southBackgroundImages = ConfigurationUI.SouthBackgroundImages.Split(',');
+
+            int index = RandomNum.Next(southBackgroundImages.Count());
+            BackgroundImageUrl = "url(../Images/SouthBackgroundImages/" + southBackgroundImages[index] + ".jpeg)";
+            StateHasChanged();
+        }
+        base.OnAfterRender(firstRender);
+    }   
+
+    protected void SetSelectedRoleDPO() => Navigate(PlanNSchedConstant.DPOEngineer);
+    protected void SetSelectedRoleRVCO() => Navigate(PlanNSchedConstant.RVCOEngineer);
+    protected void SetSelectedRoleManager() => Navigate(PlanNSchedConstant.Manager);
+
+    private void Navigate(string role)
+    {
+        logger.LogInformation("Log Message From UI, " + role + " View");
+        NavigationManager.NavigateTo($"/{role}/overview", true);
+    }
+}

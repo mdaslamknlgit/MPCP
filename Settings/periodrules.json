@@ -1,0 +1,8 @@
+[
+  { "PeriodRule": "Period Start date should be less then period End date." },
+  { "PeriodRule": "User can delete period from last to second." },
+  { "PeriodRule": "User can't modify the period of existing plan." },
+  { "PeriodRule": "User can entered plan description. Default plan description will be system generated plan name." },
+  { "PeriodRule": "User can select price effective date . Default price effective date will be yesterday date." },
+  { "PeriodRule": "Period dates begins at 12:00:00 on first day of period, and ends at 23:59:59 on the last day of period" }
+]
