@@ -228,3 +228,20 @@ h1:focus {
         height: 50px !important;
 }
 
+/* Cards page - responsive grid */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    padding: 8px 0;
+}
+
+.cards-grid__card {
+    height: 100%;
+    transition: transform 120ms ease-in-out, box-shadow 120ms ease-in-out;
+}
+
+.cards-grid__card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+}

@@ -1,9 +1,0 @@
-<TelerikDialog @bind-Visible="@IsVisible" Title="@Title" ShowCloseButton="false">
-    <DialogContent>
-        @ChildContent
-    </DialogContent>
-    <DialogButtons>
-        <TelerikButton OnClick="@(() => Close())">Cancel</TelerikButton>
-        <TelerikButton OnClick="@OnConfirm" ThemeColor="primary">Confirm</TelerikButton>
-    </DialogButtons>
-</TelerikDialog>

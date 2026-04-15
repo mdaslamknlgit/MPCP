@@ -56,6 +56,5 @@ namespace MPC.PlanSched.UI.Shared
         private void SetSelectedDrawerItem() => SetActiveMenuItemByUrl(NavigationManager.ToBaseRelativePath(NavigationManager.Uri));
 
         public void SetActiveMenuItemByUrl(string url) => SelectedItem = DrawerData.Select(x => x.GetMatchingDrawerItem(url)).FirstOrDefault(x => x != null);
-
     }
 }
